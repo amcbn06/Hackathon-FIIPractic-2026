@@ -1,0 +1,49 @@
+/* Minimal brand styling. Tune the colors here; everything else cascades. */
+
+:root {
+    --brand:       #FF6B47;   /* warm orange */
+    --brand-soft:  #FFE9E1;
+    --ink:         #1D1D1F;
+    --muted:       #6E6E73;
+    --card-bg:     #FFFFFF;
+    --card-shadow: 0 6px 24px rgba(0,0,0,0.06);
+}
+
+/* Hide Streamlit's default chrome to make the demo look less "Streamlit-y" */
+#MainMenu, header, footer { visibility: hidden; }
+
+/* Tighter top padding */
+.block-container { padding-top: 2rem !important; }
+
+/* Card style we apply to the result screen */
+.onepick-card {
+    background: var(--card-bg);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    padding: 24px;
+    margin: 12px 0;
+}
+
+.onepick-card h2 { margin: 0 0 4px 0; color: var(--ink); }
+.onepick-card .why {
+    color: var(--ink);
+    font-size: 1.05rem;
+    margin: 12px 0;
+    padding: 12px 14px;
+    background: var(--brand-soft);
+    border-left: 3px solid var(--brand);
+    border-radius: 8px;
+}
+.onepick-card .meta { color: var(--muted); font-size: 0.9rem; }
+
+/* Streak flame */
+.streak-flame {
+    font-size: 4rem;
+    text-align: center;
+}
+.streak-number {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--brand);
+}

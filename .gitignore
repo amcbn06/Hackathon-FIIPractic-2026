@@ -1,1 +1,14 @@
 local/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite
+*.sqlite3
+.env
+.streamlit/secrets.toml
+.DS_Store
+.idea/
+.vscode/

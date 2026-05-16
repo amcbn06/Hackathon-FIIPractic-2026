@@ -1,7 +1,12 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 anthropic
 streamlit
 streamlit-folium
 requests
+python-jose[cryptography]
+bcrypt
+python-multipart
+python-dotenv
+pydantic[email]
