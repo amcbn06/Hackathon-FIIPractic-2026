@@ -16,7 +16,7 @@ Other modules use `get_current_user` as a FastAPI dependency:
 
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import bcrypt
@@ -28,7 +28,7 @@ from sqlalchemy.orm import Session
 
 from backend.db import User, get_db
 
-JWT_SECRET = os.getenv("JWT_SECRET", "dev-only-change-me")
+JWT_SECRET = os.getenv("JWT_SECRET", ";~6KNPbpv$3[kq$]vIN}L8")
 JWT_ALG = "HS256"
 JWT_TTL_HOURS = 24 * 7   # one week is fine for a hackathon
 
@@ -72,7 +72,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 def make_token(user_id: int) -> str:
     payload = {
         "sub": str(user_id),
-        "exp": datetime.utcnow() + timedelta(hours=JWT_TTL_HOURS),
+        "exp": datetime.now(timezone.utc)+ timedelta(hours=JWT_TTL_HOURS),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
 

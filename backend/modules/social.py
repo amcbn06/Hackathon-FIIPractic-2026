@@ -54,37 +54,85 @@ class GroupPickRequest(BaseModel):
 
 # ----- Friends --------------------------------------------------------------
 
-@router.get("/friends", response_model=List[FriendOut])
-def list_friends(user: User = Depends(get_current_user),
-                 db: Session = Depends(get_db)):
-    rows = db.query(Friendship).filter(
-        ((Friendship.user_a_id == user.id) | (Friendship.user_b_id == user.id)),
-        Friendship.status == "accepted",
-    ).all()
-    friend_ids = [
-        r.user_b_id if r.user_a_id == user.id else r.user_a_id for r in rows
-    ]
-    friends = db.query(User).filter(User.id.in_(friend_ids)).all() if friend_ids else []
-    return [FriendOut(user_id=f.id, display_name=f.display_name or "",
-                      email=f.email) for f in friends]
-
-
-@router.post("/friends/accept", response_model=FriendOut)
-def accept_invite(body: AcceptInviteRequest,
-                  user: User = Depends(get_current_user),
-                  db: Session = Depends(get_db)):
+# Rename and repurpose this endpoint
+@router.post("/friends/request")
+def send_friend_request(
+    body: AcceptInviteRequest,  # reuse schema, or rename it to InviteCodeRequest
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     other = db.query(User).filter(User.invite_code == body.invite_code.upper()).first()
     if not other or other.id == user.id:
-        raise HTTPException(status_code=404, detail="Invalid invite code")
+        raise HTTPException(404, "Invalid invite code")
+
     a, b = sorted([user.id, other.id])
-    existing = db.query(Friendship).filter(
-        Friendship.user_a_id == a, Friendship.user_b_id == b
+    existing = db.query(Friendship).filter_by(user_a_id=a, user_b_id=b).first()
+    if existing:
+        raise HTTPException(400, "Request already sent or already friends")
+
+    db.add(Friendship(user_a_id=a, user_b_id=b,
+                      requester_id=user.id, status="pending"))
+    db.commit()
+    return {"detail": "Friend request sent"}
+
+@router.post("/friends/accept")
+def accept_friend_request(
+    requester_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    a, b = sorted([user.id, requester_id])
+    friendship = db.query(Friendship).filter_by(
+        user_a_id=a, user_b_id=b, status="pending"
     ).first()
-    if not existing:
-        db.add(Friendship(user_a_id=a, user_b_id=b, status="accepted"))
-        db.commit()
-    return FriendOut(user_id=other.id, display_name=other.display_name or "",
-                     email=other.email)
+    if not friendship:
+        raise HTTPException(404, "No pending request found")
+    if friendship.requester_id == user.id:
+        raise HTTPException(403, "Cannot accept your own request")
+
+    friendship.status = "accepted"
+    db.commit()
+    requester = db.query(User).filter(User.id == requester_id).first()
+    return FriendOut(user_id=requester.id,
+                     display_name=requester.display_name or "",
+                     email=requester.email)
+
+
+@router.post("/friends/decline")
+def decline_friend_request(
+    requester_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    a, b = sorted([user.id, requester_id])
+    friendship = db.query(Friendship).filter_by(
+        user_a_id=a, user_b_id=b, status="pending"
+    ).first()
+    if not friendship:
+        raise HTTPException(404, "No pending request found")
+    if friendship.requester_id == user.id:
+        raise HTTPException(403, "Cannot decline your own request")
+
+    db.delete(friendship)
+    db.commit()
+    return {"detail": "Request declined"}
+
+
+@router.get("/friends/pending", response_model=List[FriendOut])
+def list_pending_requests(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    pending = db.query(Friendship).filter(
+        Friendship.status == "pending",
+        # only show requests where current user is the recipient
+        Friendship.requester_id != user.id,
+        ((Friendship.user_a_id == user.id) | (Friendship.user_b_id == user.id)),
+    ).all()
+    requester_ids = [f.requester_id for f in pending]
+    requesters = db.query(User).filter(User.id.in_(requester_ids)).all() if requester_ids else []
+    return [FriendOut(user_id=r.id, display_name=r.display_name or "",
+                      email=r.email) for r in requesters]
 
 
 # ----- Groups ---------------------------------------------------------------

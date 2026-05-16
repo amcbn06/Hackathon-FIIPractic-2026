@@ -7,11 +7,11 @@ Do not import this module from outside backend/.
 """
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from sqlalchemy import (
     Column, Integer, String, Float, DateTime, ForeignKey, Boolean, Date,
-    create_engine, UniqueConstraint,
+    create_engine, UniqueConstraint, CheckConstraint,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
@@ -36,7 +36,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     display_name = Column(String, nullable=True)
     invite_code = Column(String, unique=True, nullable=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     picks = relationship("Pick", back_populates="user", cascade="all, delete-orphan")
     streak = relationship("Streak", back_populates="user", uselist=False,
                           cascade="all, delete-orphan")
@@ -56,7 +56,7 @@ class PlaceCache(Base):
     photo_url = Column(String, nullable=True)
     hours = Column(String, nullable=True)
     raw_json = Column(String)
-    cached_at = Column(DateTime, default=datetime.utcnow)
+    cached_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class Pick(Base):
@@ -69,7 +69,7 @@ class Pick(Base):
     category = Column(String)
     city = Column(String)
     why = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     visited_at = Column(DateTime, nullable=True)
     reroll_count = Column(Integer, default=0)
     thumbs = Column(Integer, default=0)
@@ -81,17 +81,16 @@ class Friendship(Base):
     id = Column(Integer, primary_key=True)
     user_a_id = Column(Integer, ForeignKey("users.id"))
     user_b_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(String, default="accepted")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    __table_args__ = (UniqueConstraint("user_a_id", "user_b_id", name="uq_pair"),)
-
+    requester_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # add this
+    status = Column(String, default="pending")  # change default from "accepted"
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class Group(Base):
     __tablename__ = "groups"
     id = Column(Integer, primary_key=True)
     name = Column(String)
     owner_id = Column(Integer, ForeignKey("users.id"))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     members = relationship("GroupMember", back_populates="group",
                            cascade="all, delete-orphan")
 
