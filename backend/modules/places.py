@@ -34,6 +34,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from opening_hours import OpeningHours
+from backend.modules import gamification
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -312,33 +313,16 @@ def reroll(pick_id: int, user: User = Depends(get_current_user),
 
 
 @router.post("/pick/{pick_id}/visited")
-def mark_visited(pick_id: int, user: User = Depends(get_current_user),
-                 db: Session = Depends(get_db)):
+def mark_visited(pick_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     p = db.query(Pick).filter(Pick.id == pick_id, Pick.user_id == user.id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Pick not found")
     if p.visited_at is None:
         p.visited_at = datetime.utcnow()
+        db.commit()
 
-    # Inline streak update — Role 3 will refactor this into gamification.py later.
-    streak = db.query(Streak).filter(Streak.user_id == user.id).first()
-    today = date.today()
-    if not streak:
-        streak = Streak(user_id=user.id, current=1, longest=1, last_visit_date=today)
-        db.add(streak)
-    else:
-        if streak.last_visit_date == today:
-            pass
-        elif streak.last_visit_date and (today - streak.last_visit_date).days == 1:
-            streak.current += 1
-            streak.longest = max(streak.longest, streak.current)
-            streak.last_visit_date = today
-        else:
-            streak.current = 1
-            streak.last_visit_date = today
-    db.commit()
+    streak = gamification.increment_streak(db, user.id)
     return {"streak_current": streak.current, "streak_longest": streak.longest}
-
 
 @router.post("/pick/{pick_id}/thumbs")
 def thumbs(pick_id: int, value: int,
