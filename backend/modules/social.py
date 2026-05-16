@@ -200,7 +200,6 @@ def list_groups(user: User = Depends(get_current_user),
         out.append(GroupOut(group_id=g.id, name=g.name, member_ids=member_ids, members=members_detail))
     return out
 
-
 @router.post("/groups/{group_id}/pick")
 def group_pick(group_id: int, body: GroupPickRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     membership = db.query(GroupMember).filter(GroupMember.group_id == group_id, GroupMember.user_id == user.id).first()

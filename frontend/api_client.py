@@ -185,6 +185,17 @@ def accept_friend_request(requester_id: int) -> Dict:
                       headers=_headers(), timeout=10)
     _raise(r)
     return r.json()
+def accept_invite(invite_code: str) -> Dict:
+    """Trimite o cerere de prietenie folosind codul de invite și ignoră eroarea 400."""
+    r = requests.post(f"{BACKEND_URL}/friends/request",
+                      json={"invite_code": invite_code},
+                      headers=_headers(), timeout=10)
+    # Evităm crash-ul vizual în Streamlit dacă cererea există deja în bază
+    if r.status_code == 400:
+        return {"detail": "Request already sent"}
+    
+    _raise(r)
+    return r.json()
 
 
 def decline_friend_request(requester_id: int) -> Dict:

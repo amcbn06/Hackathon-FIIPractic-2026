@@ -118,27 +118,38 @@ try:
         st.markdown('<div class="no-groups-text">No groups yet.</div>', unsafe_allow_html=True)
     else:
         for g in groups:
-            st.markdown(
-                f'<div class="op-card"><div class="op-card-body">'
-                f'<div class="group-title">{g["name"]}</div>'
-                f'<div class="group-meta">{len(g["member_ids"])} me mbers</div>'
-                f'</div></div>',
-                unsafe_allow_html=True,
-            )
-            col_cat, col_btn = st.columns([2, 1])
-            with col_cat:
-                cat = st.selectbox(
-                    f"Category",
-                    CATEGORIES,
-                    key=f"gcat_{g['group_id']}",
-                    label_visibility="collapsed",
-                )
-            with col_btn:
-                if st.button(f"Pick →", key=f"gpick_{g['group_id']}", use_container_width=True):
-                    with st.spinner("Picking for the group..."):
-                        p = api.group_pick(g["group_id"], cat, "Iași")
-                    st.session_state["last_pick"] = p
-                    st.switch_page("pages/2_Result.py")
+            st.markdown(f"**{g['name']}** — {len(g['member_ids'])} members")
+        
+        # --- SECȚIUNEA PENTRU MEMBRI ---
+            with st.expander("👥 View Members"):
+                for m in g.get("members", []):
+                    req_key = f"req_sent_{m['user_id']}"
+                    
+                    if m["user_id"] == me["id"]:
+                        st.write(f"- 👤 **{m['display_name']}** (You)")
+                    elif m["user_id"] in friend_map.values():
+                        st.write(f"- 🤝 **{m['display_name']}** (Friend)")
+                    elif st.session_state.get(req_key):
+                        st.write(f"- ⏳ **{m['display_name']}** (Friend request)")
+                    else:
+                        col1, col2 = st.columns([3, 1])
+                        with col1:
+                            st.write(f"- 👤 **{m['display_name']}**")
+                        with col2:
+                            if st.button("Add", key=f"g_add_{g['group_id']}_{m['user_id']}", type="secondary"):
+                                api.accept_invite(m['invite_code'])
+                                st.session_state[req_key] = True 
+                                st.rerun()
+            # ------------------------------------
+
+            cat = st.selectbox(f"Category for {g['name']}",
+                            ["cafe", "park", "museum", "bar", "restaurant", "viewpoint"],
+                            key=f"gcat_{g['group_id']}")
+            if st.button(f"Pick for {g['name']}", key=f"gpick_{g['group_id']}"):
+                with st.spinner("Picking for the group..."):
+                    p = api.group_pick(g["group_id"], cat, "Iași")
+                st.session_state["last_pick"] = p
+                st.switch_page("pages/2_Result.py")
 
 except Exception as e:
     st.error(f"Couldn't load groups: {e}")
