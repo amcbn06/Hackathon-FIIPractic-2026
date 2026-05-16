@@ -45,6 +45,16 @@ def _headers() -> Dict[str, str]:
     tok = get_token()
     return {"Authorization": f"Bearer {tok}"} if tok else {}
 
+def _raise(r: requests.Response) -> None:
+    if not r.ok:
+        try:
+            detail = r.json().get("detail", r.text)
+        except Exception:
+            detail = r.text
+        st.error(f"Error {r.status_code}: {detail}")
+        st.stop()
+
+
 
 # ----- Real HTTP wrappers (with mock fallback) ------------------------------
 
@@ -55,7 +65,7 @@ def signup(email: str, password: str, display_name: str = "") -> Dict:
     r = requests.post(f"{BACKEND_URL}/signup", json={
         "email": email, "password": password, "display_name": display_name,
     }, timeout=10)
-    r.raise_for_status()
+    _raise(r)
     data = r.json()
     set_token(data["token"], data["user_id"])
     return data
@@ -68,7 +78,7 @@ def login(email: str, password: str) -> Dict:
     r = requests.post(f"{BACKEND_URL}/login", json={
         "email": email, "password": password,
     }, timeout=10)
-    r.raise_for_status()
+    _raise(r)
     data = r.json()
     set_token(data["token"], data["user_id"])
     return data
@@ -79,7 +89,7 @@ def me() -> Dict:
         return {"id": 1, "email": "demo@onepick.app",
                 "display_name": "Demo", "invite_code": "ABC123"}
     r = requests.get(f"{BACKEND_URL}/me", headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -97,7 +107,7 @@ def pick(category: str, city: str, group_id: Optional[int] = None) -> Dict:
     r = requests.post(f"{BACKEND_URL}/pick",
                       json={"category": category, "city": city, "group_id": group_id},
                       headers=_headers(), timeout=15)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -106,7 +116,7 @@ def reroll(pick_id: int) -> Dict:
         return pick("cafe", "Iași")
     r = requests.post(f"{BACKEND_URL}/pick/{pick_id}/reroll",
                       headers=_headers(), timeout=15)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -115,7 +125,7 @@ def mark_visited(pick_id: int) -> Dict:
         return {"streak_current": 8, "streak_longest": 12}
     r = requests.post(f"{BACKEND_URL}/pick/{pick_id}/visited",
                       headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -125,7 +135,7 @@ def thumbs(pick_id: int, value: int) -> Dict:
     r = requests.post(f"{BACKEND_URL}/pick/{pick_id}/thumbs",
                       params={"value": value},
                       headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -145,7 +155,7 @@ def itinerary(categories: List[str], city: str, day: Optional[str] = None) -> Di
     r = requests.post(f"{BACKEND_URL}/itinerary",
                       json={"categories": categories, "city": city, "day": day},
                       headers=_headers(), timeout=20)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -153,27 +163,54 @@ def friends() -> List[Dict]:
     if MOCK_MODE:
         return [{"user_id": 2, "display_name": "Ana", "email": "ana@onepick.app"}]
     r = requests.get(f"{BACKEND_URL}/friends", headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
-def accept_invite(code: str) -> Dict:
+def send_friend_request(invite_code: str) -> Dict:
     if MOCK_MODE:
-        return {"user_id": 2, "display_name": "Ana", "email": "ana@onepick.app"}
-    r = requests.post(f"{BACKEND_URL}/friends/accept",
-                      json={"invite_code": code},
+        return {"detail": "Friend request sent"}
+    r = requests.post(f"{BACKEND_URL}/friends/request",
+                      json={"invite_code": invite_code},
                       headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
+def accept_friend_request(requester_id: int) -> Dict:
+    if MOCK_MODE:
+        return {"user_id": requester_id, "display_name": "Ana", "email": "ana@onepick.app"}
+    r = requests.post(f"{BACKEND_URL}/friends/accept",
+                      params={"requester_id": requester_id},
+                      headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+
+def decline_friend_request(requester_id: int) -> Dict:
+    if MOCK_MODE:
+        return {"detail": "Request declined"}
+    r = requests.post(f"{BACKEND_URL}/friends/decline",
+                      params={"requester_id": requester_id},
+                      headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+
+def pending_requests() -> List[Dict]:
+    if MOCK_MODE:
+        return [{"user_id": 3, "display_name": "Mihai", "email": "mihai@onepick.app"}]
+    r = requests.get(f"{BACKEND_URL}/friends/pending",
+                     headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
 def create_group(name: str, member_ids: List[int]) -> Dict:
     if MOCK_MODE:
         return {"group_id": 1, "name": name, "member_ids": [1] + member_ids}
     r = requests.post(f"{BACKEND_URL}/groups",
                       json={"name": name, "member_ids": member_ids},
                       headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -181,7 +218,7 @@ def list_groups() -> List[Dict]:
     if MOCK_MODE:
         return [{"group_id": 1, "name": "Weekend Crew", "member_ids": [1, 2]}]
     r = requests.get(f"{BACKEND_URL}/groups", headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -191,7 +228,7 @@ def group_pick(group_id: int, category: str, city: str) -> Dict:
     r = requests.post(f"{BACKEND_URL}/groups/{group_id}/pick",
                       json={"category": category, "city": city},
                       headers=_headers(), timeout=15)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -199,7 +236,7 @@ def streak() -> Dict:
     if MOCK_MODE:
         return {"current": 7, "longest": 12, "last_visit_date": "2026-05-15"}
     r = requests.get(f"{BACKEND_URL}/me/streak", headers=_headers(), timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
 
 
@@ -215,5 +252,5 @@ def history(limit: int = 50) -> Dict:
         ]}
     r = requests.get(f"{BACKEND_URL}/me/history",
                      headers=_headers(), params={"limit": limit}, timeout=10)
-    r.raise_for_status()
+    _raise(r)
     return r.json()
