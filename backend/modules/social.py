@@ -11,7 +11,9 @@ Endpoints:
     POST /groups/{id}/pick              -> one rec for the whole group
 """
 
+from datetime import date, datetime
 from typing import List, Optional
+from backend.db import Pick
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -40,12 +42,16 @@ class CreateGroupRequest(BaseModel):
     name: str
     member_ids: List[int] = []
 
+class GroupMemberDetail(BaseModel):
+    user_id: int
+    display_name: str
+    invite_code: str
 
 class GroupOut(BaseModel):
     group_id: int
     name: str
     member_ids: List[int]
-
+    members: List[GroupMemberDetail] = []
 
 class GroupPickRequest(BaseModel):
     category: str
@@ -133,7 +139,32 @@ def list_pending_requests(
     requesters = db.query(User).filter(User.id.in_(requester_ids)).all() if requester_ids else []
     return [FriendOut(user_id=r.id, display_name=r.display_name or "",
                       email=r.email) for r in requesters]
+@router.get("/friends", response_model=List[FriendOut])
+def list_friends(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Listează toți prietenii cu care utilizatorul are o relație acceptată."""
+    accepted_friendships = db.query(Friendship).filter(
+        Friendship.status == "accepted",
+        ((Friendship.user_a_id == user.id) | (Friendship.user_b_id == user.id))
+    ).all()
 
+    friend_ids = []
+    for f in accepted_friendships:
+        if f.user_a_id == user.id:
+            friend_ids.append(f.user_b_id)
+        else:
+            friend_ids.append(f.user_a_id)
+
+    if not friend_ids:
+        return []
+
+    friends_users = db.query(User).filter(User.id.in_(friend_ids)).all()
+    return [
+        FriendOut(user_id=u.id, display_name=u.display_name or "", email=u.email)
+        for u in friends_users
+    ]
 
 # ----- Groups ---------------------------------------------------------------
 
@@ -148,7 +179,10 @@ def create_group(body: CreateGroupRequest,
     for uid in member_ids:
         db.add(GroupMember(group_id=g.id, user_id=uid))
     db.commit()
-    return GroupOut(group_id=g.id, name=g.name, member_ids=member_ids)
+    
+    users = db.query(User).filter(User.id.in_(member_ids)).all()
+    members_detail = [GroupMemberDetail(user_id=u.id, display_name=u.display_name or "Anonim", invite_code=u.invite_code) for u in users]
+    return GroupOut(group_id=g.id, name=g.name, member_ids=member_ids, members=members_detail)
 
 
 @router.get("/groups", response_model=List[GroupOut])
@@ -161,21 +195,26 @@ def list_groups(user: User = Depends(get_current_user),
         if not g:
             continue
         member_ids = [m.user_id for m in g.members]
-        out.append(GroupOut(group_id=g.id, name=g.name, member_ids=member_ids))
+        users = db.query(User).filter(User.id.in_(member_ids)).all()
+        members_detail = [GroupMemberDetail(user_id=u.id, display_name=u.display_name or "Anonim", invite_code=u.invite_code) for u in users]
+        out.append(GroupOut(group_id=g.id, name=g.name, member_ids=member_ids, members=members_detail))
     return out
 
 
 @router.post("/groups/{group_id}/pick")
-def group_pick(group_id: int, body: GroupPickRequest,
-               user: User = Depends(get_current_user),
-               db: Session = Depends(get_db)):
-    membership = db.query(GroupMember).filter(
-        GroupMember.group_id == group_id, GroupMember.user_id == user.id
-    ).first()
+def group_pick(group_id: int, body: GroupPickRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    membership = db.query(GroupMember).filter(GroupMember.group_id == group_id, GroupMember.user_id == user.id).first()
     if not membership:
         raise HTTPException(status_code=403, detail="Not a member of this group")
 
-    # Delegate to the places module so we don't duplicate scoring logic
-    req = places_module.PickRequest(category=body.category, city=body.city,
-                                    group_id=group_id)
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    existing_pick = db.query(Pick).filter(Pick.group_id == group_id, Pick.created_at >= today_start).order_by(Pick.created_at.desc()).first()
+
+    if existing_pick:
+        return places_module.PickResponse(
+            pick_id=existing_pick.id, place_id=existing_pick.place_id, name=existing_pick.place_name, why=existing_pick.why,
+            lat=47.1585, lon=27.6014, address="Conform GPS", rating=4.5
+        )
+
+    req = places_module.PickRequest(category=body.category, city=body.city, group_id=group_id)
     return places_module.pick(req, user=user, db=db)

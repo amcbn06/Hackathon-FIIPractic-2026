@@ -11,7 +11,7 @@ Usage:
 
 import json
 import secrets
-from datetime import date, timedelta
+from datetime import date, timedelta,datetime
 from pathlib import Path
 
 from backend.db import (
@@ -89,6 +89,7 @@ def _seed_places(db) -> int:
         ).first()
         if existing:
             continue
+        #description
         db.add(Place(
             name=entry["name"],
             address=entry.get("address", ""),
@@ -103,21 +104,39 @@ def _seed_places(db) -> int:
         inserted += 1
     return inserted
 
-
 def _seed_history(db, users):
-    """Give the demo user some history. References real seeded places when available."""
-    if db.query(Pick).filter(Pick.user_id == users[0].id).first():
+    """Give the demo users some realistic history to make the UI pop."""
+    if db.query(Pick).filter(Pick.user_id == users[0].id).count() > 0:
         return
-    sample = db.query(Place).filter(Place.status == "admin").limit(3).all()
+        
+    sample = db.query(Place).filter(Place.status == "admin").limit(7).all()
+    
+    if not sample:
+        print("  WARN: No admin places found for history. Generating mocks.")
+        sample = [
+            Place(id=1001, name="Acaju", category="cafe", city="Iași"),
+            Place(id=1002, name="Palatul Culturii", category="museum", city="Iași"),
+            Place(id=1003, name="Parcul Copou", category="park", city="Iași")
+        ]
+
+    today = date.today()
     for i, place in enumerate(sample):
+        is_visited = i < 5 
+        past_date = today - timedelta(days=(i + 1))
+        
+        visit_time = None
+        if is_visited:
+            visit_time = datetime.combine(past_date, datetime.min.time()) + timedelta(hours=14)
+
         db.add(Pick(
             user_id=users[0].id,
             place_id=str(place.id),
             place_name=place.name,
             category=place.category,
             city=place.city,
-            why=place.description or f"A solid local {place.category}.",
-            visited_at=None if i == 0 else None,
+            why=f"O alegere excelentă pentru categoria {place.category}.",
+            created_at=datetime.combine(past_date, datetime.min.time()) + timedelta(hours=10),
+            visited_at=visit_time
         ))
 
 
