@@ -48,8 +48,23 @@ class Place(Base):
     city = Column(String, index=True, nullable=False)
     photo_url = Column(String, nullable=True)
     hours = Column(String, nullable=True)
-    raw_json = Column(String)
-    cached_at = Column(DateTime, default=datetime.utcnow)
+    description = Column(String, nullable=True)
+    vote_count = Column(Integer, default=0, nullable=False)
+    # "admin" = seeded by admin, "pending" = user-submitted awaiting votes, "approved" = promoted
+    status = Column(String, default="pending", nullable=False, index=True)
+    submitted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    votes = relationship("PlaceVote", back_populates="place", cascade="all, delete-orphan")
+
+
+class PlaceVote(Base):
+    __tablename__ = "place_votes"
+    id = Column(Integer, primary_key=True)
+    place_id = Column(Integer, ForeignKey("places.id"), index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (UniqueConstraint("place_id", "user_id", name="uq_place_vote"),)
+    place = relationship("Place", back_populates="votes")
 
 
 class Pick(Base):
