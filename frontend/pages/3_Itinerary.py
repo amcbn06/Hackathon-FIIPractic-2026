@@ -9,7 +9,9 @@ from streamlit_folium import st_folium
 from frontend import api_client as api
 
 st.set_page_config(page_title="Itinerary — OnePick", page_icon="🗺️", layout="centered")
-
+img_path = Path(__file__).parent.parent / "images" / "logo.png"
+if img_path.exists():
+    st.logo(str(img_path),size = "large")
 css = (Path(__file__).parent.parent / "style.css").read_text()
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 

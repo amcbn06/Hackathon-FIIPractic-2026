@@ -3,10 +3,10 @@
 
 :root {
     /* ── Strict Brand palette ── */
-    --sidebar:     #040622;
+    --sidebar:     #3C4043;
     --main:        #151345;
     --text:        #F8F9FA;
-    --buttons:     #150f38;
+    --buttons:     #3C4043;
 
     /* ── Semantic tokens (Mapped exclusively to the 4 colors above) ── */
     --radius-sm:   8px;
