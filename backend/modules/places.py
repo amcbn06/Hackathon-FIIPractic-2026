@@ -7,7 +7,7 @@ Endpoints:
     Picking:
       POST   /pick                       -> one recommendation
       POST   /pick/{id}/reroll           -> reroll an existing pick (max 3/day)
-      POST   /pick/{id}/visited          -> mark visited (increments streak)
+      POST   /pick/{id}/visited          -> m  ark visited (increments streak)
       POST   /pick/{id}/thumbs           -> +1 / -1 crowdsourced signal
       POST   /itinerary                  -> multi-stop route
 
@@ -28,10 +28,12 @@ exist for the category+city.
 
 import os
 import random
-from datetime import datetime, date
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, date, timedelta, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from opening_hours import OpeningHours
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -141,60 +143,83 @@ def _eligible_places(db: Session, category: str, city: str) -> List[Place]:
                       Place.status.in_(("admin", "approved")))
               .all())
 
+def _is_open_now(hours_str: str) -> bool:
+    if not hours_str:
+        return False
+    if "always" in hours_str.lower():
+        return True
+    try:
+        return OpeningHours(hours_str).is_open()
+    except Exception:
+        return False
+
 
 def _weight(place: dict, seen_place_ids: set) -> float:
     """
     Higher = more likely to be picked.
 
     Inputs in our crowdsourced model:
-      - vote_count: a quality signal from the community (0–N)
-      - novelty bonus if user hasn't picked this recently
-      - small jitter so identical inputs aren't deterministic
+      - quality: based on vote_count
+      - novelty: a small boost if the user hasn't picked this place recently
+      - jitter: random tiebreaker so we don't always pick the same place first for everyone
+      - open_now: multiplier to prefer currently open places (0 or 1)
     """
     quality = 3.5 + min(1.5, place.get("vote_count", 0) * 0.1)   # 3.5 → 5.0 cap
     novelty = 0.0 if place["place_id"] in seen_place_ids else 1.5
     jitter = random.uniform(0, 0.5)
-    return quality + novelty + jitter
+    open_now = 1.0 if _is_open_now(place.get("hours", "")) else 0.0
+    score = (quality + novelty + jitter) * (open_now * 0.5 + 1.0)  # 1.5x boost if open, but don't penalize closed places too much
+    return score
 
+_reason_cache: dict[tuple, str] = {}
 
-def _generate_reason(place: dict, category: str) -> str:
-    """
-    Generate a one-line "why this pick" reason.
-
-    If USE_ANTHROPIC=true and ANTHROPIC_API_KEY is set, ask Claude.
-    Otherwise (and on any failure), use the place's curator description or a
-    safe template. This keeps the demo working without burning Anthropic tokens.
-    """
-    # Prefer the curator's hand-written description when available
+def _generate_reason(place: dict, category: str, user_id: int, recent_names: list[str] = []) -> str:
+    print(f"_generate_reason called with place_id={place['place_id']}, category={category}, user_id={user_id}, recent_names={recent_names}")
     if place.get("description"):
         return place["description"]
 
     template = f"A solid local {category}"
-    if place.get("hours"):
-        template += f" — open {place['hours']}"
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    print(f"USE_ANTHROPIC={USE_ANTHROPIC}, api_key={'set' if api_key else 'not set'}")
     if not (USE_ANTHROPIC and api_key):
         return template
 
+    cache_key = (place["place_id"], user_id, str(datetime.now().date()))
+    if cache_key in _reason_cache:
+        print(f"Using cached reason for place_id={place['place_id']} and user_id={user_id}")
+        return _reason_cache[cache_key]
+
     try:
+        print(f"Generating reason for place_id={place['place_id']} for user_id={user_id} with recent_names={recent_names}")
         from anthropic import Anthropic
         client = Anthropic(api_key=api_key)
-        msg = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=60,
-            messages=[{
-                "role": "user",
-                "content": (
-                    f"Write ONE short sentence (max 18 words) telling a student "
-                    f"why they should visit this {category} in {place.get('city','')}: "
-                    f"name={place['name']}, address={place.get('address','')}, "
-                    f"hours={place.get('hours','')}. "
-                    f"No emoji. No exclamation marks. Friendly but not breathless."
-                ),
-            }],
-        )
-        return msg.content[0].text.strip()
+
+        history_note = ""
+        if recent_names:
+            history_note = f"The user recently visited: {', '.join(recent_names)}. "
+
+        messages = [{
+            "role": "user",
+            "content": (
+                f"{history_note}Write ONE short sentence (max 18 words) telling a student "
+                f"why they should visit this {category} in {place.get('city','')}: "
+                f"name={place['name']}, address={place.get('address','')}, "
+                f"hours={place.get('hours','')}. "
+                f"No emoji. No exclamation marks. Friendly but not breathless."
+            ),
+        }]
+
+        with ThreadPoolExecutor(max_workers=1) as ex:
+            future = ex.submit(client.messages.create,
+                               model="claude-haiku-4-5-20251001",
+                               max_tokens=60,
+                               messages=messages)
+            msg = future.result(timeout=2.0)
+
+        result = msg.content[0].text.strip()
+        _reason_cache[cache_key] = result
+        return result
     except Exception:
         return template
 
@@ -210,11 +235,20 @@ def _pick_for_user(db: Session, user_id: int, category: str, city: str) -> dict:
     candidates = [_place_to_dict(p) for p in rows]
     seen = {
         p.place_id for p in db.query(Pick)
-        .filter(Pick.user_id == user_id).limit(50).all()
+        .filter(Pick.user_id == user_id,
+                Pick.created_at >= datetime.now(timezone.utc) - timedelta(days=7)
+                ).all()
     }
+
     scored = sorted(candidates, key=lambda p: _weight(p, seen), reverse=True)
     chosen = scored[0]
-    chosen["why"] = _generate_reason(chosen, category)
+
+    recent_names = [p.place_name for p in db.query(Pick)
+                    .filter(Pick.user_id == user_id)
+                    .order_by(Pick.created_at.desc()).limit(3).all()
+                    if p.place_name]
+
+    chosen["why"] = _generate_reason(chosen, category, user_id, recent_names)
     return chosen
 
 
@@ -410,8 +444,10 @@ def suggest_place(body: SuggestPlaceRequest,
                   user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
     """Any logged-in user can suggest a new place. Starts as 'pending'."""
+    if not body.name or not body.name.strip():
+        raise HTTPException(status_code=400, detail="Place name cannot be empty")
     p = Place(
-        name=body.name, address=body.address or "", lat=body.lat, lon=body.lon,
+        name=body.name.strip(), address=body.address or "", lat=body.lat, lon=body.lon,
         category=body.category, city=body.city,
         hours=body.hours, description=body.description, photo_url=body.photo_url,
         status="pending", submitted_by=user.id, vote_count=0,

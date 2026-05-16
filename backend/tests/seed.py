@@ -16,14 +16,16 @@ from pathlib import Path
 
 from backend.db import (
     init_db, SessionLocal, User, Friendship, Group, GroupMember,
-    Streak, Pick, Place,
+    Streak, Pick, Place, PlaceVote,
 )
 from backend.auth import hash_password
 
 
 DEMO_ACCOUNTS = [
-    {"email": "demo@onepick.app",  "password": "demo1234", "name": "Demo User"},
-    {"email": "ana@onepick.app",   "password": "demo1234", "name": "Ana"},
+    {"email": "demo@onepick.app",   "password": "demo1234", "name": "Demo User"},
+    {"email": "ana@onepick.app",    "password": "demo1234", "name": "Ana"},
+    {"email": "voter1@onepick.app", "password": "demo1234", "name": "Voter 1"},
+    {"email": "voter2@onepick.app", "password": "demo1234", "name": "Voter 2"},
 ]
 
 SEED_PLACES_FILE = Path(__file__).resolve().parent.parent / "seed_places.json"
@@ -104,6 +106,57 @@ def _seed_places(db) -> int:
     return inserted
 
 
+def _seed_suggest_vote_demo(db, users):
+    """
+    Pre-stages the suggest+vote demo loop:
+      - One pending place suggested by demo@ (visible in Pending tab)
+      - One community-approved place (already has 3 votes, status='approved')
+    Idempotent — skips if places already exist.
+    """
+    demo_user = users[0]   # demo@onepick.app
+    voters = users[1:]     # ana@, voter1@, voter2@
+
+    # 1. Pending place — shown in /places/pending during the demo
+    if not db.query(Place).filter(Place.name == "Hidden Gem Café").first():
+        pending = Place(
+            name="Hidden Gem Café",
+            address="Strada Păcurari 12, Iași",
+            lat=47.1698, lon=27.5731,
+            category="cafe", city="Iași",
+            hours="Mo-Su 08:00-20:00",
+            description="A cozy neighborhood café suggested by the community.",
+            status="pending",
+            submitted_by=demo_user.id,
+            vote_count=0,
+        )
+        db.add(pending)
+        db.flush()
+
+    # 2. Community-approved place — already went through the full vote flow
+    approved = db.query(Place).filter(Place.name == "Terasa Panoramică Copou").first()
+    if not approved:
+        approved = Place(
+            name="Terasa Panoramică Copou",
+            address="Bd. Carol I 56, Iași",
+            lat=47.1880, lon=27.5742,
+            category="viewpoint", city="Iași",
+            hours="Mo-Su 10:00-22:00",
+            description="Rooftop terrace near Copou park — voted up by students.",
+            status="approved",
+            submitted_by=demo_user.id,
+            vote_count=len(voters),
+        )
+        db.add(approved)
+        db.flush()
+        for voter in voters:
+            existing_vote = db.query(PlaceVote).filter(
+                PlaceVote.place_id == approved.id,
+                PlaceVote.user_id == voter.id,
+            ).first()
+            if not existing_vote:
+                db.add(PlaceVote(place_id=approved.id, user_id=voter.id))
+
+
 def _seed_history(db, users):
     """Give the demo user some history. References real seeded places when available."""
     if db.query(Pick).filter(Pick.user_id == users[0].id).first():
@@ -130,14 +183,17 @@ def run():
         _seed_streaks(db, users)
         n_places = _seed_places(db)
         _seed_history(db, users)
+        _seed_suggest_vote_demo(db, users)
         db.commit()
 
         print(f"Seeded {len(users)} accounts, {n_places} new admin places.")
-        print(f"Invite codes:")
+        print("Accounts (all password: demo1234):")
         for u in users:
-            print(f"  {u.email} -> {u.invite_code} (password: demo1234)")
-        if n_places:
-            print(f"\nTip: set ADMIN_EMAILS=demo@onepick.app in .env to make demo@ an admin.")
+            print(f"  {u.email} -> invite code {u.invite_code}")
+        print("\nDemo flow ready:")
+        print("  - 'Hidden Gem Café' is pending in /places/pending")
+        print("  - 'Terasa Panoramică Copou' is approved (3 votes) in /pick?category=viewpoint")
+        print("\nTip: set ADMIN_EMAILS=demo@onepick.app in .env to make demo@ an admin.")
     finally:
         db.close()
 

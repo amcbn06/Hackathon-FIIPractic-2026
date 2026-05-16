@@ -19,240 +19,243 @@
   "places": [
     {
       "name": "Cafeneaua Piața Unirii",
-      "address": "Piața Unirii 1, Iași",
-      "lat": 47.1645, "lon": 27.5876,
+      "address": "Piața Unirii nr. 6, Iași",
+      "lat": 47.16795157860598, "lon": 27.5792884850432, 
+      "category": "cafe", "city": "Iași",
+      "hours": "Th 08:00-02:00; Su-We 08:00-01:00; Fr-Sa 08:00-03:00",
+      "description": "Central, easy to find, good espresso and a wide terrace."
+    },
+    {
+      "name": "Frateria",
+      "address": "Strada Cuza Vodă 47",
+      "lat": 47.16430622015717, "lon": 27.588827645134174, 
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Th 08:30-20:30; Fr-Su 08:30-22:00",
+      "description": "Specialty coffee chain favorite — good wifi, comfortable seating, study-friendly, great pastry."
+    },
+    {
+      "name": "Tucano Coffee India - Ștefan cel Mare",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt 52",
+      "lat": 47.1615591083373, "lon": 27.583741654895345,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Fr 08:00-22:00; Sa-Su 09:00-22:00",
+      "description": "Cozy, indie, central, third-wave coffee."
+    },
+    {
+      "name": "Capuchin Coffee Roasters",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt nr. 8",
+      "lat": 47.16376464817948, "lon": 27.581474483164452,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Fr 07:00-20:00; Sa-Su 08:00-20:00",
+      "description": "Capuchin Coffee Roasters is a cozy specialty coffee shop in Iași that roasts its own premium beans, offering a flawless espresso experience in a warm, minimalist atmosphere."
+    },
+    {
+      "name": "BUJOR",
+      "address": "Aleea Veronica Micle 4",
+      "lat": 47.17443760803529, "lon": 27.573512542557914,
       "category": "cafe", "city": "Iași",
       "hours": "Mo-Su 08:00-22:00",
-      "description": "Central, easy to find, dependable espresso and a wide terrace."
+      "description": "Bujor Copou is a chic specialty coffee shop in Iași, famous for its stylish interior, great brunch, and exceptional lattes."
     },
     {
-      "name": "Meron Coffee",
-      "address": "Strada Lăpușneanu 18, Iași",
-      "lat": 47.1684, "lon": 27.5816,
+      "name": "5 to go Copou",
+      "address": "Bulevardul Carol I 3",
+      "lat": 47.17311549123639, "lon": 27.574567796010207,
       "category": "cafe", "city": "Iași",
-      "hours": "Mo-Su 09:00-23:00",
-      "description": "Specialty coffee chain favorite — good wifi, comfortable seating, study-friendly."
+      "hours": "Mo-Fr 07:00-19:00; Sa-Su 08:00-18:00",
+      "description": "5 to go Copou offers a fast and friendly specialty coffee experience in Iași, perfect for quick on-the-go fuel."
     },
     {
-      "name": "Origo Coffee Shop",
-      "address": "Strada Cuza Vodă 26, Iași",
-      "lat": 47.1659, "lon": 27.5879,
+      "name": "NOIR Coffee Van Piata Unirii",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt",
+      "lat": 47.165526275241376, "lon": 27.580112627477217,
       "category": "cafe", "city": "Iași",
-      "hours": "Mo-Fr 08:00-20:00, Sa-Su 09:00-20:00",
-      "description": "Cozy, indie, third-wave coffee. Sit upstairs for the quiet spot."
+      "hours": "Mo-Fr 07:00-23:00; Sa-Su 08:00-00:00",
+      "description": "Noir Piața Independenței is a sleek specialty coffee shop in Iași, offering premium brews and a cozy, modern urban vibe."
     },
     {
-      "name": "French Bakery",
-      "address": "Bd. Carol I 4, Iași",
-      "lat": 47.1672, "lon": 27.5853,
-      "category": "cafe", "city": "Iași",
-      "hours": "Mo-Su 07:30-21:00",
-      "description": "Pastries plus solid coffee — pair a croissant with a long black."
-    },
-    {
-      "name": "Cafenea de Anticariat",
-      "address": "Strada Sărărie 17, Iași",
-      "lat": 47.1707, "lon": 27.5810,
-      "category": "cafe", "city": "Iași",
-      "hours": "Mo-Su 10:00-23:00",
-      "description": "Books-and-coffee bookstore café — perfect rainy afternoon spot."
-    },
-
-    {
-      "name": "Parcul Copou",
-      "address": "Bd. Carol I, Iași",
-      "lat": 47.1872, "lon": 27.5749,
+      "name": "Grădina Copou",
+      "address": "Bulevardul Carol I nr. 31",
+      "lat": 47.178969428899926, "lon": 27.567650396786803,
       "category": "park", "city": "Iași",
-      "hours": "Always open",
-      "description": "Iași's classic park — Eminescu's linden tree and quiet alleys."
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Copou Park is a historic, serene green oasis in Iași, famous for Eminescu's Linden Tree and peaceful, nature-filled walking paths."
     },
     {
-      "name": "Grădina Botanică Anastasie Fătu",
-      "address": "Str. Dumbrava Roșie 7-9, Iași",
-      "lat": 47.1750, "lon": 27.5527,
+      "name": "Parc Junimea",
+      "address": "Strada Costache Negruzzi nr. 4",
+      "lat": 47.16462607734273, "lon": 27.57983828329515,
       "category": "park", "city": "Iași",
-      "hours": "Mo-Su 09:00-19:00",
-      "description": "The oldest botanical garden in Romania. Bigger than you think — bring snacks."
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Junimea Park is a charming, quiet green square in Iași, celebrating the city's rich literary history in a peaceful setting."
     },
     {
-      "name": "Parcul Expoziției",
-      "address": "Bd. Carol I, Iași",
-      "lat": 47.1853, "lon": 27.5760,
+      "name": "Grădina botanică Anastasie Fătu",
+      "address": "Strada Dumbrava Roșie nr. 7-9",
+      "lat": 47.18669930872745, "lon": 27.556630221913952,
       "category": "park", "city": "Iași",
-      "hours": "Always open",
-      "description": "Open green near Copou — good for a quick break between classes."
+      "hours": "Mo-Su 09:00-20:00",
+      "description": "Grădina Botanică Iași is Romania's oldest and largest botanical garden, famous for its stunning greenhouse exhibitions and beautiful rose gardens."
     },
     {
-      "name": "Parcul Palatul Culturii",
-      "address": "Piața Palat 1, Iași",
-      "lat": 47.1572, "lon": 27.5872,
+      "name": "Esplanada Nicolina 1",
+      "address": "Strada Petre Ţuţea 11",
+      "lat": 47.143252124891426, "lon": 27.57993994016046,
       "category": "park", "city": "Iași",
-      "hours": "Always open",
-      "description": "Lawn around the Palace — golden-hour photos guaranteed."
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Nicolina 1 Esplanade is a lively urban promenade in Iași, featuring green spaces, pedestrian pathways, and a bustling local community vibe."
     },
     {
-      "name": "Parcul Mihai Eminescu",
-      "address": "Strada Mihai Eminescu, Iași",
-      "lat": 47.1745, "lon": 27.5827,
-      "category": "park", "city": "Iași",
-      "hours": "Always open",
-      "description": "Small, calm, near the university — locals' favorite for reading."
-    },
-
-    {
-      "name": "Palatul Culturii — Muzeul Național al Moldovei",
-      "address": "Piața Palat 1, Iași",
-      "lat": 47.1571, "lon": 27.5879,
-      "category": "museum", "city": "Iași",
-      "hours": "Tu-Su 10:00-17:00",
-      "description": "The big one. Four museums in one building. Plan two hours minimum."
+      "name": "Releu Bucium",
+      "address": "Releu Bucium",
+      "lat": 47.08636099131852, "lon": 27.64688386609042, 
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Bucium Relay is the highest viewpoint in Iași, offering breathtaking panoramic vistas of the entire city and its surrounding hills."
     },
     {
-      "name": "Muzeul Unirii",
-      "address": "Strada Alexandru Lăpușneanu 14, Iași",
-      "lat": 47.1668, "lon": 27.5824,
+      "name": "Cetățuia",
+      "address": "Str. Cetățuia 2",
+      "lat": 47.13170449128531, "lon": 27.58415170659854,  
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Cetățuia Monastery is a historic hilltop fortress-monastery in Iași, offering rich medieval history, serene gardens, and panoramic city views."
+    },
+    {
+      "name": "Ciric",
+      "address": "Str. Ciric",
+      "lat": 47.16464719033543, "lon": 27.612547637672566,
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Ciric is a popular lakeside recreational area in Iași, offering boating, outdoor activities, and peaceful forests for a perfect weekend escape."
+    },
+    {
+      "name": "Palatul Culturii",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt 1",
+      "lat": 47.15755909383818, "lon": 27.586514640967557,
       "category": "museum", "city": "Iași",
       "hours": "We-Su 10:00-17:00",
-      "description": "Compact history museum in Cuza's former residence — focused and engaging."
+      "description": "The Palace of Culture is a majestic neo-Gothic landmark in Iași, housing four world-class museums and a stunning clock tower."
     },
     {
-      "name": "Muzeul Mihai Eminescu",
-      "address": "Bd. Carol I, Iași (Parcul Copou)",
-      "lat": 47.1862, "lon": 27.5732,
+      "name": "Bojdeuca Ion Creangă",
+      "address": "Strada Simion Bărnuţiu nr. 4",
+      "lat": 47.175417399584546, "lon": 27.58280027169607,
       "category": "museum", "city": "Iași",
       "hours": "Tu-Su 10:00-17:00",
-      "description": "In Copou park, dedicated to Romania's national poet — best paired with a park walk."
+      "description": "Ion Creangă's Bojdeuca is a charming 19th-century cottage museum in Iași, celebrating the famous Romanian writer's cozy home and classic tales."
     },
     {
-      "name": "Muzeul Literaturii Române",
-      "address": "Strada Vasile Pogor 4, Iași",
-      "lat": 47.1656, "lon": 27.5840,
+      "name": "Muzeul Militar National Regele Ferdinand I",
+      "address": "Bulevardul Carol I 5-7",
+      "lat": 47.172200546562486, "lon": 27.573674125622805,
+      "category": "museum", "city": "Iași",
+      "hours": "We-Sa 10:00-18:00",
+      "description": "The Military Museum in Iași showcases a captivating collection of historical weapons, uniforms, and local artifacts tracing Romania's rich military heritage."
+    },
+    {
+      "name": "Muzeul Pogromului",
+      "address": "Strada Vasile Alecsandri 6",
+      "lat": 47.16652907115746, "lon": 27.582369853951796,
       "category": "museum", "city": "Iași",
       "hours": "Tu-Su 10:00-17:00",
-      "description": "Beautiful 19th-century house, exhibits on Junimea and Iași's literary scene."
+      "description": "The Iași Pogrom Museum is a solemn, moving memorial dedicated to honoring the victims and preserving the tragic history of the 1941 massacres."
     },
     {
-      "name": "Muzeul de Istorie Naturală",
-      "address": "Strada Independenței 16, Iași",
-      "lat": 47.1659, "lon": 27.5826,
+      "name": "Palatul Braunstein",
+      "address": "Strada Cuza Vodă 2",
+      "lat": 47.16560938633936, "lon": 27.580413998640875,
       "category": "museum", "city": "Iași",
-      "hours": "Tu-Su 10:00-17:00",
-      "description": "The first natural history museum in Romania — fossils, dioramas, taxidermy."
+      "hours": "We-Su 09:00-16:30",
+      "description": "Braunstein Palace is a beautifully restored architectural gem in Iași, now serving as a vibrant cultural center and exhibition hub."
     },
-
     {
-      "name": "Beraria Old Nick",
-      "address": "Piața Unirii, Iași",
-      "lat": 47.1647, "lon": 27.5862,
+      "name": "Curtea Berarilor",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt 10",
+      "lat": 47.162650808159874, "lon": 27.581937056313464,
       "category": "bar", "city": "Iași",
-      "hours": "Mo-Su 12:00-02:00",
-      "description": "Classic beer hall. Local lagers on tap, hearty food, big tables."
+      "hours": "Fr-Su 10:00-02:00; Mo-Sa 10:00-23:00",
+      "description": "Curtea Berarilor is a lively, rustic-style pub in Iași, famous for its great selection of draft beers and hearty traditional food."
     },
     {
-      "name": "Underground 13",
-      "address": "Strada Lăpușneanu 13, Iași",
-      "lat": 47.1675, "lon": 27.5817,
+      "name": "SHOTĂRIA",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt 8-12",
+      "lat": 47.163339848362895, "lon": 27.58188754096798,
       "category": "bar", "city": "Iași",
-      "hours": "Tu-Su 18:00-02:00",
-      "description": "Cellar bar with live music nights — pick a Thursday for the best lineup."
+      "hours": "Tu-Th 20:00-01:00; Fr-Su 20:00-03:00",
+      "description": "Shotăria is a vibrant, creative little bar in the center of Iași, famous for its energetic party atmosphere and talented bartenders mixing custom shots."
     },
     {
-      "name": "Macondo",
-      "address": "Strada Sf. Sava 1, Iași",
-      "lat": 47.1661, "lon": 27.5854,
+      "name": "La Bază",
+      "address": "Galeriile Stefan cel Mare, Bulevardul Ștefan cel Mare și Sfânt",
+      "lat": 47.16300687054913, "lon": 27.582274967949463,
       "category": "bar", "city": "Iași",
-      "hours": "Mo-Su 18:00-03:00",
-      "description": "Latin-themed bar, big cocktail list — louder later in the night."
+      "hours": "Mo-Th 18:00-02:00; Fr-Sa 18:00-04:00",
+      "description": "La Bază is a legendary underground bar and alternative pub in Iași, famous for its rock atmosphere, live events, and lively social scene."
     },
     {
-      "name": "Acaju",
-      "address": "Strada Costache Negri 5, Iași",
-      "lat": 47.1681, "lon": 27.5827,
+      "name": "Beer Zone",
+      "address": "Strada Alexandru Lăpușneanu nr. 16",
+      "lat": 47.16798236950807, "lon": 27.578955710277008,
       "category": "bar", "city": "Iași",
-      "hours": "Mo-Su 17:00-02:00",
-      "description": "Wine bar, slower vibe, good for early evening before dinner."
+      "hours": "Mo-Su 12:00-01:00",
+      "description": "Beer Zone is a cozy, long-standing craft beer pub in Iași, famous for its massive selection of local and international brews."
     },
-
     {
-      "name": "Casa Lavric",
-      "address": "Strada Sărărie 80, Iași",
-      "lat": 47.1739, "lon": 27.5747,
+      "name": "Vipard",
+      "address": "Strada Lascăr Catargi nr. 1",
+      "lat": 47.16975515294294, "lon": 27.580038496786294,
+      "category": "bar", "city": "Iași",
+      "hours": "Mo-Su 06:00-22:00",
+      "description": "Vipard is a legendary, no-nonsense local pub in Iași, famous for its steadfast refusal to change with the times, ultra-budget prices, and raw, completely unpretentious local charm."
+    },
+    {
+      "name": "Mamma Mia",
+      "address": "Bulevardul Ștefan cel Mare și Sfânt nr. 10-12",
+      "lat": 47.16400184627218, "lon": 27.58088739493105,
       "category": "restaurant", "city": "Iași",
-      "hours": "Mo-Su 12:00-23:00",
-      "description": "Romanian classics done well — get the sarmale, leave room for papanași."
+      "hours": "Mo-Su 00:00-24:00",
+      "description": "Mamma Mia is a popular 24/7 restaurant in Iași, famous for its massive portions, diverse menu, and quick delivery service."
     },
     {
-      "name": "Cuib",
-      "address": "Strada Lascăr Catargi 5, Iași",
-      "lat": 47.1693, "lon": 27.5829,
+      "name": "Mandala",
+      "address": "Strada Profesor Petru Olteanu 101A",
+      "lat": 47.12898566548903, "lon": 27.69992178165968,
       "category": "restaurant", "city": "Iași",
-      "hours": "Tu-Su 12:00-22:00",
-      "description": "Strictly vegan, surprisingly hearty. Even meat eaters leave happy."
+      "hours": "Mo-Su 12:00-21:00",
+      "description": "Mandala is a beautiful family restaurant and event venue located just outside Iași (in Tomești), famous for its excellent Italian pizza, modern design, and an outdoor kids' park with a zipline."
     },
     {
-      "name": "Restaurant 6",
-      "address": "Bd. Carol I, Iași",
-      "lat": 47.1701, "lon": 27.5810,
+      "name": "Veranda",
+      "address": "Strada Anastasie Panu nr. 46",
+      "lat": 47.161525984578994, "lon": 27.590427739112975,
       "category": "restaurant", "city": "Iași",
-      "hours": "Mo-Su 12:00-23:00",
-      "description": "Modern Romanian, intimate setting, good for a dinner that matters."
+      "hours": "Mo-Su 12:00-00:00",
+      "description": "Veranda is an elegant restaurant in Iași, famous for its refined atmosphere, exquisite cuisine, and a gorgeous terrace that offers a relaxing dining experience in the heart of the city."
     },
     {
-      "name": "Pucanini",
-      "address": "Strada Cuza Vodă 21, Iași",
-      "lat": 47.1656, "lon": 27.5884,
+      "name": "Caucaz",
+      "address": "Bulevardul Carol I 26-28, etaj parter",
+      "lat": 47.17693306228292, "lon": 27.571245981440935,
       "category": "restaurant", "city": "Iași",
-      "hours": "Mo-Su 11:00-23:00",
-      "description": "Pasta done right by Italians. Order the cacio e pepe."
+      "hours": "Mo-Su 12:00-22:00",
+      "description": "Caucaz is an authentic restaurant in Iași offering a unique culinary journey through Georgian, Armenian, and Azerbaijani cuisines, famous for its traditional Khinkali, Khachapuri, and fine Georgian wines."
     },
     {
-      "name": "Trei Iezi",
-      "address": "Strada Păcurari 92, Iași",
-      "lat": 47.1709, "lon": 27.5547,
+      "name": "Pizza di Napo",
+      "address": "Strada Palat 48",
+      "lat": 47.15579356361287, "lon": 27.58507378143991,
       "category": "restaurant", "city": "Iași",
       "hours": "Mo-Su 11:00-22:00",
-      "description": "Grilled meats and beer garden — affordable, casual, big portions."
-    },
-
-    {
-      "name": "Mănăstirea Cetățuia",
-      "address": "Aleea Mănăstirii Cetățuia, Iași",
-      "lat": 47.1326, "lon": 27.5984,
-      "category": "viewpoint", "city": "Iași",
-      "hours": "Always accessible",
-      "description": "Hilltop monastery with the city's best panorama — go at sunset."
+      "description": "Pizza Di Napo is a popular pizzeria in Iași located right near the Palace of Culture, famous for its authentic Neapolitan-style pizza baked in a traditional wood-fired oven."
     },
     {
-      "name": "Mănăstirea Galata",
-      "address": "Strada Mănăstirii, Iași",
-      "lat": 47.1487, "lon": 27.5664,
-      "category": "viewpoint", "city": "Iași",
-      "hours": "Always accessible",
-      "description": "Old fortified monastery on a hill — quieter than Cetățuia, same kind of view."
-    },
-    {
-      "name": "Dealul Bucium",
-      "address": "Dealul Bucium, Iași",
-      "lat": 47.1257, "lon": 27.6253,
-      "category": "viewpoint", "city": "Iași",
-      "hours": "Always accessible",
-      "description": "Vineyard-covered hill south of the city — walk up for the view, walk down through wine country."
-    },
-    {
-      "name": "Turnul Palatului Culturii",
-      "address": "Piața Palat 1, Iași",
-      "lat": 47.1572, "lon": 27.5879,
-      "category": "viewpoint", "city": "Iași",
-      "hours": "Tu-Su 10:00-17:00",
-      "description": "Climb the Palace tower for a downtown view — combine with the museum ticket."
-    },
-    {
-      "name": "Dealul Repedea",
-      "address": "Rezervația Repedea, Bârnova, Iași",
-      "lat": 47.0950, "lon": 27.5985,
-      "category": "viewpoint", "city": "Iași",
-      "hours": "Always accessible",
-      "description": "Forest reserve south of the city — wide view, fewer tourists, real quiet."
+      "name": "Chin Chin Palas Campus",
+      "address": "Strada Sfântul Andrei 39a",
+      "lat": 47.15693907747508, "lon": 27.581502637257888,
+      "category": "restaurant", "city": "Iași",
+      "hours": "Mo-Su 11:00-23:00",
+      "description": "Chin Chin is a modern Asian restaurant and bar located in Palas Campus, famous for its sleek interior design and a diverse menu featuring wok dishes, sushi, dumplings, and signature bowls."
     }
   ]
 }
