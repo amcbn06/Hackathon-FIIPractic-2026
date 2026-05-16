@@ -21,7 +21,7 @@ from typing import Optional
 
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
@@ -32,7 +32,14 @@ JWT_SECRET = os.getenv("JWT_SECRET", "dev-only-change-me")
 JWT_ALG = "HS256"
 JWT_TTL_HOURS = 24 * 7   # one week is fine for a hackathon
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+# Admin allowlist: comma-separated emails in ADMIN_EMAILS env var.
+# Whoever logs in with one of these is treated as admin (can approve places,
+# delete, etc). No DB migration needed — change .env and restart.
+ADMIN_EMAILS = {
+    e.strip().lower() for e in os.getenv("ADMIN_EMAILS", "").split(",") if e.strip()
+}
+
+_http_bearer = HTTPBearer()
 
 router = APIRouter(tags=["auth"])
 
@@ -78,9 +85,10 @@ def make_token(user_id: int) -> str:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(_http_bearer),
     db: Session = Depends(get_db),
 ) -> User:
+    token = credentials.credentials
     creds_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -95,6 +103,18 @@ def get_current_user(
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise creds_error
+    return user
+
+
+def is_admin(user: User) -> bool:
+    """True if the user's email is in ADMIN_EMAILS."""
+    return (user.email or "").lower() in ADMIN_EMAILS
+
+
+def get_admin_user(user: User = Depends(get_current_user)) -> User:
+    """FastAPI dependency that 403s if the caller isn't an admin."""
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin only")
     return user
 
 
@@ -131,4 +151,5 @@ def me(user: User = Depends(get_current_user)):
         "email": user.email,
         "display_name": user.display_name,
         "invite_code": user.invite_code,
+        "is_admin": is_admin(user),
     }

@@ -1,0 +1,258 @@
+{
+  "_README": [
+    "Admin-seeded places loaded by `python -m backend.tests.seed` into the Place table.",
+    "All entries are inserted with status='admin' (always eligible for /pick).",
+    "",
+    "BEFORE THE DEMO: an admin should review every entry below and:",
+    "  1. Verify the name is exactly as the place calls itself",
+    "  2. Confirm the address",
+    "  3. Tighten the lat/lon (rough approximations only — use Google Maps to refine)",
+    "  4. Update or remove the description (Role 5 should give voice feedback)",
+    "  5. Add real opening hours if known",
+    "",
+    "Add or remove entries freely. The file is just JSON, the seed script reads it whole.",
+    "",
+    "Categories must be one of: cafe, park, museum, bar, restaurant, viewpoint",
+    "City should match exactly the value the frontend sends in /pick (e.g. 'Iași' with diacritics)."
+  ],
+  "city_default": "Iași",
+  "places": [
+    {
+      "name": "Cafeneaua Piața Unirii",
+      "address": "Piața Unirii 1, Iași",
+      "lat": 47.1645, "lon": 27.5876,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Su 08:00-22:00",
+      "description": "Central, easy to find, dependable espresso and a wide terrace."
+    },
+    {
+      "name": "Meron Coffee",
+      "address": "Strada Lăpușneanu 18, Iași",
+      "lat": 47.1684, "lon": 27.5816,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Su 09:00-23:00",
+      "description": "Specialty coffee chain favorite — good wifi, comfortable seating, study-friendly."
+    },
+    {
+      "name": "Origo Coffee Shop",
+      "address": "Strada Cuza Vodă 26, Iași",
+      "lat": 47.1659, "lon": 27.5879,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Fr 08:00-20:00, Sa-Su 09:00-20:00",
+      "description": "Cozy, indie, third-wave coffee. Sit upstairs for the quiet spot."
+    },
+    {
+      "name": "French Bakery",
+      "address": "Bd. Carol I 4, Iași",
+      "lat": 47.1672, "lon": 27.5853,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Su 07:30-21:00",
+      "description": "Pastries plus solid coffee — pair a croissant with a long black."
+    },
+    {
+      "name": "Cafenea de Anticariat",
+      "address": "Strada Sărărie 17, Iași",
+      "lat": 47.1707, "lon": 27.5810,
+      "category": "cafe", "city": "Iași",
+      "hours": "Mo-Su 10:00-23:00",
+      "description": "Books-and-coffee bookstore café — perfect rainy afternoon spot."
+    },
+
+    {
+      "name": "Parcul Copou",
+      "address": "Bd. Carol I, Iași",
+      "lat": 47.1872, "lon": 27.5749,
+      "category": "park", "city": "Iași",
+      "hours": "Always open",
+      "description": "Iași's classic park — Eminescu's linden tree and quiet alleys."
+    },
+    {
+      "name": "Grădina Botanică Anastasie Fătu",
+      "address": "Str. Dumbrava Roșie 7-9, Iași",
+      "lat": 47.1750, "lon": 27.5527,
+      "category": "park", "city": "Iași",
+      "hours": "Mo-Su 09:00-19:00",
+      "description": "The oldest botanical garden in Romania. Bigger than you think — bring snacks."
+    },
+    {
+      "name": "Parcul Expoziției",
+      "address": "Bd. Carol I, Iași",
+      "lat": 47.1853, "lon": 27.5760,
+      "category": "park", "city": "Iași",
+      "hours": "Always open",
+      "description": "Open green near Copou — good for a quick break between classes."
+    },
+    {
+      "name": "Parcul Palatul Culturii",
+      "address": "Piața Palat 1, Iași",
+      "lat": 47.1572, "lon": 27.5872,
+      "category": "park", "city": "Iași",
+      "hours": "Always open",
+      "description": "Lawn around the Palace — golden-hour photos guaranteed."
+    },
+    {
+      "name": "Parcul Mihai Eminescu",
+      "address": "Strada Mihai Eminescu, Iași",
+      "lat": 47.1745, "lon": 27.5827,
+      "category": "park", "city": "Iași",
+      "hours": "Always open",
+      "description": "Small, calm, near the university — locals' favorite for reading."
+    },
+
+    {
+      "name": "Palatul Culturii — Muzeul Național al Moldovei",
+      "address": "Piața Palat 1, Iași",
+      "lat": 47.1571, "lon": 27.5879,
+      "category": "museum", "city": "Iași",
+      "hours": "Tu-Su 10:00-17:00",
+      "description": "The big one. Four museums in one building. Plan two hours minimum."
+    },
+    {
+      "name": "Muzeul Unirii",
+      "address": "Strada Alexandru Lăpușneanu 14, Iași",
+      "lat": 47.1668, "lon": 27.5824,
+      "category": "museum", "city": "Iași",
+      "hours": "We-Su 10:00-17:00",
+      "description": "Compact history museum in Cuza's former residence — focused and engaging."
+    },
+    {
+      "name": "Muzeul Mihai Eminescu",
+      "address": "Bd. Carol I, Iași (Parcul Copou)",
+      "lat": 47.1862, "lon": 27.5732,
+      "category": "museum", "city": "Iași",
+      "hours": "Tu-Su 10:00-17:00",
+      "description": "In Copou park, dedicated to Romania's national poet — best paired with a park walk."
+    },
+    {
+      "name": "Muzeul Literaturii Române",
+      "address": "Strada Vasile Pogor 4, Iași",
+      "lat": 47.1656, "lon": 27.5840,
+      "category": "museum", "city": "Iași",
+      "hours": "Tu-Su 10:00-17:00",
+      "description": "Beautiful 19th-century house, exhibits on Junimea and Iași's literary scene."
+    },
+    {
+      "name": "Muzeul de Istorie Naturală",
+      "address": "Strada Independenței 16, Iași",
+      "lat": 47.1659, "lon": 27.5826,
+      "category": "museum", "city": "Iași",
+      "hours": "Tu-Su 10:00-17:00",
+      "description": "The first natural history museum in Romania — fossils, dioramas, taxidermy."
+    },
+
+    {
+      "name": "Beraria Old Nick",
+      "address": "Piața Unirii, Iași",
+      "lat": 47.1647, "lon": 27.5862,
+      "category": "bar", "city": "Iași",
+      "hours": "Mo-Su 12:00-02:00",
+      "description": "Classic beer hall. Local lagers on tap, hearty food, big tables."
+    },
+    {
+      "name": "Underground 13",
+      "address": "Strada Lăpușneanu 13, Iași",
+      "lat": 47.1675, "lon": 27.5817,
+      "category": "bar", "city": "Iași",
+      "hours": "Tu-Su 18:00-02:00",
+      "description": "Cellar bar with live music nights — pick a Thursday for the best lineup."
+    },
+    {
+      "name": "Macondo",
+      "address": "Strada Sf. Sava 1, Iași",
+      "lat": 47.1661, "lon": 27.5854,
+      "category": "bar", "city": "Iași",
+      "hours": "Mo-Su 18:00-03:00",
+      "description": "Latin-themed bar, big cocktail list — louder later in the night."
+    },
+    {
+      "name": "Acaju",
+      "address": "Strada Costache Negri 5, Iași",
+      "lat": 47.1681, "lon": 27.5827,
+      "category": "bar", "city": "Iași",
+      "hours": "Mo-Su 17:00-02:00",
+      "description": "Wine bar, slower vibe, good for early evening before dinner."
+    },
+
+    {
+      "name": "Casa Lavric",
+      "address": "Strada Sărărie 80, Iași",
+      "lat": 47.1739, "lon": 27.5747,
+      "category": "restaurant", "city": "Iași",
+      "hours": "Mo-Su 12:00-23:00",
+      "description": "Romanian classics done well — get the sarmale, leave room for papanași."
+    },
+    {
+      "name": "Cuib",
+      "address": "Strada Lascăr Catargi 5, Iași",
+      "lat": 47.1693, "lon": 27.5829,
+      "category": "restaurant", "city": "Iași",
+      "hours": "Tu-Su 12:00-22:00",
+      "description": "Strictly vegan, surprisingly hearty. Even meat eaters leave happy."
+    },
+    {
+      "name": "Restaurant 6",
+      "address": "Bd. Carol I, Iași",
+      "lat": 47.1701, "lon": 27.5810,
+      "category": "restaurant", "city": "Iași",
+      "hours": "Mo-Su 12:00-23:00",
+      "description": "Modern Romanian, intimate setting, good for a dinner that matters."
+    },
+    {
+      "name": "Pucanini",
+      "address": "Strada Cuza Vodă 21, Iași",
+      "lat": 47.1656, "lon": 27.5884,
+      "category": "restaurant", "city": "Iași",
+      "hours": "Mo-Su 11:00-23:00",
+      "description": "Pasta done right by Italians. Order the cacio e pepe."
+    },
+    {
+      "name": "Trei Iezi",
+      "address": "Strada Păcurari 92, Iași",
+      "lat": 47.1709, "lon": 27.5547,
+      "category": "restaurant", "city": "Iași",
+      "hours": "Mo-Su 11:00-22:00",
+      "description": "Grilled meats and beer garden — affordable, casual, big portions."
+    },
+
+    {
+      "name": "Mănăstirea Cetățuia",
+      "address": "Aleea Mănăstirii Cetățuia, Iași",
+      "lat": 47.1326, "lon": 27.5984,
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Always accessible",
+      "description": "Hilltop monastery with the city's best panorama — go at sunset."
+    },
+    {
+      "name": "Mănăstirea Galata",
+      "address": "Strada Mănăstirii, Iași",
+      "lat": 47.1487, "lon": 27.5664,
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Always accessible",
+      "description": "Old fortified monastery on a hill — quieter than Cetățuia, same kind of view."
+    },
+    {
+      "name": "Dealul Bucium",
+      "address": "Dealul Bucium, Iași",
+      "lat": 47.1257, "lon": 27.6253,
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Always accessible",
+      "description": "Vineyard-covered hill south of the city — walk up for the view, walk down through wine country."
+    },
+    {
+      "name": "Turnul Palatului Culturii",
+      "address": "Piața Palat 1, Iași",
+      "lat": 47.1572, "lon": 27.5879,
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Tu-Su 10:00-17:00",
+      "description": "Climb the Palace tower for a downtown view — combine with the museum ticket."
+    },
+    {
+      "name": "Dealul Repedea",
+      "address": "Rezervația Repedea, Bârnova, Iași",
+      "lat": 47.0950, "lon": 27.5985,
+      "category": "viewpoint", "city": "Iași",
+      "hours": "Always accessible",
+      "description": "Forest reserve south of the city — wide view, fewer tourists, real quiet."
+    }
+  ]
+}

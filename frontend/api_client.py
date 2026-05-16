@@ -217,3 +217,80 @@ def history(limit: int = 50) -> Dict:
                      headers=_headers(), params={"limit": limit}, timeout=10)
     r.raise_for_status()
     return r.json()
+
+
+# ----- Crowdsourced places -------------------------------------------------
+
+def list_places(category: Optional[str] = None,
+                city: Optional[str] = None,
+                status: Optional[str] = None) -> List[Dict]:
+    if MOCK_MODE:
+        return [{
+            "id": 1, "name": "Mock Café Central", "address": "Lăpușneanu 14",
+            "lat": 47.17, "lon": 27.58, "category": "cafe", "city": "Iași",
+            "photo_url": None, "hours": "08-22", "description": "Mock",
+            "status": "admin", "vote_count": 0,
+        }]
+    params = {k: v for k, v in
+              {"category": category, "city": city, "status": status}.items() if v}
+    r = requests.get(f"{BACKEND_URL}/places", headers=_headers(),
+                     params=params, timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def list_pending_places(city: Optional[str] = None) -> List[Dict]:
+    if MOCK_MODE:
+        return []
+    params = {"city": city} if city else {}
+    r = requests.get(f"{BACKEND_URL}/places/pending", headers=_headers(),
+                     params=params, timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def suggest_place(payload: Dict) -> Dict:
+    """payload must include: name, lat, lon, category, city. Optional: address,
+    hours, description, photo_url."""
+    if MOCK_MODE:
+        return {**payload, "id": 999, "status": "pending", "vote_count": 0}
+    r = requests.post(f"{BACKEND_URL}/places/suggest",
+                      json=payload, headers=_headers(), timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def vote_place(place_id: int) -> Dict:
+    if MOCK_MODE:
+        return {"id": place_id, "vote_count": 1, "status": "pending"}
+    r = requests.post(f"{BACKEND_URL}/places/{place_id}/vote",
+                      headers=_headers(), timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def admin_approve_place(place_id: int) -> Dict:
+    if MOCK_MODE:
+        return {"id": place_id, "status": "approved"}
+    r = requests.post(f"{BACKEND_URL}/places/{place_id}/approve",
+                      headers=_headers(), timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def admin_reject_place(place_id: int) -> Dict:
+    if MOCK_MODE:
+        return {"id": place_id, "status": "rejected"}
+    r = requests.post(f"{BACKEND_URL}/places/{place_id}/reject",
+                      headers=_headers(), timeout=10)
+    r.raise_for_status()
+    return r.json()
+
+
+def admin_delete_place(place_id: int) -> Dict:
+    if MOCK_MODE:
+        return {"deleted": place_id}
+    r = requests.delete(f"{BACKEND_URL}/places/{place_id}",
+                        headers=_headers(), timeout=10)
+    r.raise_for_status()
+    return r.json()

@@ -2,8 +2,6 @@
 SQLAlchemy models + DB session.
 
 Owner: Role 1 (Tech Lead).
-Everyone imports `SessionLocal` and the models they need from here.
-Do not import this module from outside backend/.
 """
 
 import os
@@ -15,9 +13,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
-# Anchor the DB path to the project root (parent of backend/) so the file
-# lives in a predictable place no matter where uvicorn / streamlit / pytest
-# is launched from. Override with DATABASE_URL env var for prod deploys.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB_PATH = PROJECT_ROOT / "onepick.db"
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
@@ -42,21 +37,34 @@ class User(Base):
                           cascade="all, delete-orphan")
 
 
-class PlaceCache(Base):
-    __tablename__ = "places_cache"
+class Place(Base):
+    __tablename__ = "places"
     id = Column(Integer, primary_key=True)
-    category = Column(String, index=True)
-    city = Column(String, index=True)
-    place_id = Column(String, index=True)
-    name = Column(String)
-    address = Column(String)
-    lat = Column(Float)
-    lon = Column(Float)
-    rating = Column(Float, nullable=True)
+    name = Column(String, nullable=False)
+    address = Column(String, default="")
+    lat = Column(Float, nullable=False)
+    lon = Column(Float, nullable=False)
+    category = Column(String, index=True, nullable=False)
+    city = Column(String, index=True, nullable=False)
     photo_url = Column(String, nullable=True)
     hours = Column(String, nullable=True)
-    raw_json = Column(String)
-    cached_at = Column(DateTime, default=datetime.utcnow)
+    description = Column(String, nullable=True)
+    status = Column(String, default="pending", index=True)
+    submitted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    vote_count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    votes = relationship("PlaceVote", back_populates="place",
+                         cascade="all, delete-orphan")
+
+
+class PlaceVote(Base):
+    __tablename__ = "place_votes"
+    id = Column(Integer, primary_key=True)
+    place_id = Column(Integer, ForeignKey("places.id"), index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    __table_args__ = (UniqueConstraint("place_id", "user_id", name="uq_place_user_vote"),)
+    place = relationship("Place", back_populates="votes")
 
 
 class Pick(Base):
