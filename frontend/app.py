@@ -1,5 +1,5 @@
 """
-Streamlit entry point.
+Streamlit entry point — South with PlaceFind aesthetic.
 
 Run:
     streamlit run frontend/app.py
@@ -8,23 +8,37 @@ Run:
 import sys
 from pathlib import Path
 
-# Make the project root importable when launched via `streamlit run`
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
 from frontend import api_client as api
 
-st.set_page_config(page_title="OnePick", page_icon="🎯", layout="centered")
+st.set_page_config(page_title="South", page_icon="", layout="centered")
 
-# Inject custom CSS
+img_path = Path(__file__).parent / "images" / "logo.png"
+if img_path.exists():
+    st.logo(str(img_path),size = "large")
+
+# ─────────────────────────────
+
+css_path = Path(__file__).parent / "style.css"
+if css_path.exists():
+    st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
+
 css_path = Path(__file__).parent / "style.css"
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
 
+CATEGORIES = [
+    ("cafe", "☕"), ("park", "🌳"), ("museum", "🏛️"),
+    ("bar", "🍻"), ("restaurant", "🍽️"), ("viewpoint", "🌆"),
+]
+
+
 def _login_screen():
-    st.title("🎯 OnePick")
-    st.caption("Stop choosing. Start going.")
+    st.markdown('<div class="login-title"> South</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-sub">Stop choosing. Start going.</div>', unsafe_allow_html=True)
 
     tab_login, tab_signup = st.tabs(["Log in", "Sign up"])
 
@@ -52,46 +66,43 @@ def _login_screen():
                     st.error(f"Signup failed: {e}")
 
     st.markdown(
-        "<br><br><center><small>"
-        "Demo account: <code>demo@onepick.app</code> / <code>demo1234</code>"
-        "</small></center>",
+        "<div class='login-demo-text'>Demo: <code>demo@South.app</code> / <code>demo1234</code></div>",
         unsafe_allow_html=True,
     )
 
 
 def _home_screen():
-    """Landing screen — category chips + Surprise Me button."""
     user = api.me()
-    st.title(f"Hey, {user['display_name']} 👋")
-    st.caption("Pick a vibe. We pick the place.")
+
+    st.markdown(f'<div class="page-title">Hey, {user["display_name"]} 👋</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-sub">Pick a vibe. We pick the place.</div>', unsafe_allow_html=True)
 
     city = st.text_input("Where are you?", value="Iași", key="city")
 
-    st.write("### What are you in the mood for?")
-    cols = st.columns(3)
-    categories = ["cafe", "park", "museum", "bar", "restaurant", "viewpoint"]
-    icons = {"cafe": "☕", "park": "🌳", "museum": "🏛️",
-             "bar": "🍻", "restaurant": "🍽️", "viewpoint": "🌆"}
+    st.markdown('<div class="section-label">What are you in the mood for?</div>', unsafe_allow_html=True)
 
-    for i, cat in enumerate(categories):
+    cols = st.columns(3)
+    for i, (cat, icon) in enumerate(CATEGORIES):
         with cols[i % 3]:
-            if st.button(f"{icons[cat]} {cat.title()}", use_container_width=True,
-                         key=f"cat_{cat}"):
+            if st.button(f"{icon} {cat.title()}", use_container_width=True, key=f"cat_{cat}"):
                 with st.spinner("Finding the one..."):
                     result = api.pick(cat, city)
                 st.session_state["last_pick"] = result
                 st.switch_page("pages/2_Result.py")
 
-    st.divider()
     with st.sidebar:
-        st.write(f"**{user['email']}**")
-        st.code(f"Invite code: {user['invite_code']}")
-        if st.button("Log out"):
+
+        st.markdown(
+            '<div class="sidebar-brand-container"><span class="sidebar-brand-text">South</span></div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(f'<div class="sidebar-email-text">{user["email"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="sidebar-invite-text">Invite: <code>{user["invite_code"]}</code></div>', unsafe_allow_html=True)
+        st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
+        if st.button("Log out", use_container_width=True):
             api.clear_token()
             st.rerun()
 
-
-# ----- Router ---------------------------------------------------------------
 
 if not api.is_logged_in():
     _login_screen()

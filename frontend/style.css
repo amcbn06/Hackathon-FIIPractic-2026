@@ -1,49 +1,278 @@
-/* Minimal brand styling. Tune the colors here; everything else cascades. */
+/* ── OnePick — PlaceFind aesthetic (Strict 4-Color Palette) ──────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap');
 
 :root {
-    --brand:       #FF6B47;   /* warm orange */
-    --brand-soft:  #FFE9E1;
-    --ink:         #1D1D1F;
-    --muted:       #6E6E73;
-    --card-bg:     #FFFFFF;
-    --card-shadow: 0 6px 24px rgba(0,0,0,0.06);
+    /* ── Strict Brand palette ── */
+    --sidebar:     #040622;
+    --main:        #151345;
+    --text:        #F8F9FA;
+    --buttons:     #150f38;
+
+    /* ── Semantic tokens (Mapped exclusively to the 4 colors above) ── */
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --radius-lg:   16px;
+    --font-sans:   'DM Sans', sans-serif;
+    --font-serif:  'DM Serif Display', serif;
 }
 
-/* Hide Streamlit's default chrome to make the demo look less "Streamlit-y" */
-#MainMenu, header, footer { visibility: hidden; }
+html, body, [class*="css"] {
+    font-family: var(--font-sans) !important;
+    background-color: var(--main) !important;
+    color: var(--text) !important;
+}
 
-/* Tighter top padding */
-.block-container { padding-top: 2rem !important; }
+/* ── Hide Streamlit chrome ── */
+#MainMenu, footer, .stAppDeployButton {
+    visibility: hidden !important;
+    display: none !important;
+}
+header {
+    background: transparent !important;
+}
 
-/* Card style we apply to the result screen */
-.onepick-card {
-    background: var(--card-bg);
-    border-radius: 18px;
-    box-shadow: var(--card-shadow);
-    padding: 24px;
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+
+    background-color: var(--sidebar) !important;
+    border-right: 1px solid var(--buttons) !important;
+}
+[data-testid="stSidebar"] > div { padding-top: 1.4rem; }
+
+/* ── Inputs ── */
+.stTextInput input, .stTextArea textarea {
+    background: var(--buttons) !important;
+    border: 1px solid var(--sidebar) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--text) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.stTextInput input:focus, .stTextArea textarea:focus {
+    border-color: var(--text) !important;
+    box-shadow: 0 0 0 3px var(--sidebar) !important;
+    outline: none !important;
+}
+
+/* ── Buttons ── */
+.stButton > button {
+    background-color: var(--buttons) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--sidebar) !important;
+    border-radius: var(--radius-sm) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 10px 22px !important;
+    transition: opacity 0.15s !important;
+    cursor: pointer !important;
+}
+.stButton > button:hover { opacity: 0.86 !important; border-color: var(--text) !important; }
+.stButton > button:disabled {
+    background-color: var(--sidebar) !important;
+    color: var(--text) !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+/* ── Category chip buttons (override for pill style) ── */
+.cat-btn .stButton > button {
+    background: var(--sidebar) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--buttons) !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    padding: 8px 18px !important;
+}
+.cat-btn .stButton > button:hover {
+    background: var(--buttons) !important;
+    color: var(--text) !important;
+    border-color: var(--text) !important;
+    opacity: 1 !important;
+}
+
+/* ── Multiselect ── */
+[data-baseweb="tag"] {
+    background: var(--buttons) !important;
+    color: var(--text) !important;
+    border-radius: 6px !important;
+}
+[data-baseweb="select"] > div {
+    background: var(--buttons) !important;
+    border: 1px solid var(--sidebar) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+/* ── Tabs ── */
+[data-baseweb="tab-list"] {
+    background: transparent !important;
+    border-bottom: 1px solid var(--buttons) !important;
+    gap: 0 !important;
+}
+[data-baseweb="tab"] {
+    font-family: var(--font-sans) !important;
+    font-size: 14px !important;
+    color: var(--text) !important;
+    padding: 10px 20px !important;
+    background: transparent !important;
+    opacity: 0.7;
+}
+[aria-selected="true"][data-baseweb="tab"] {
+    color: var(--text) !important;
+    border-bottom: 2px solid var(--text) !important;
+    font-weight: 600 !important;
+    opacity: 1;
+}
+
+/* ── Custom components ── */
+.op-card {
+    background: var(--sidebar);
+    border: 1px solid var(--buttons);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+.op-card-body { padding: 20px 24px 22px; }
+.op-card-title {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+.op-card-desc { font-size: 13.5px; color: var(--text); line-height: 1.6; margin-bottom: 14px; opacity: 0.8; }
+.op-card-meta { font-size: 12px; color: var(--text); margin-top: 10px; opacity: 0.7; }
+.op-card-why {
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--buttons);
+    border-left: 3px solid var(--text);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 10px 14px;
     margin: 12px 0;
+    line-height: 1.55;
 }
 
-.onepick-card h2 { margin: 0 0 4px 0; color: var(--ink); }
-.onepick-card .why {
-    color: var(--ink);
-    font-size: 1.05rem;
-    margin: 12px 0;
-    padding: 12px 14px;
-    background: var(--brand-soft);
-    border-left: 3px solid var(--brand);
-    border-radius: 8px;
+.op-badge, .op-tag {
+    display: inline-flex; align-items: center;
+    background: var(--buttons);
+    border: 1px solid var(--sidebar);
+    color: var(--text);
+    border-radius: 6px;
+    font-size: 12px;
 }
-.onepick-card .meta { color: var(--muted); font-size: 0.9rem; }
+.op-badge { padding: 3px 9px; margin-bottom: 10px; font-size: 11.5px; }
+.op-tag { padding: 3px 10px; margin: 2px 3px 2px 0; }
 
-/* Streak flame */
-.streak-flame {
-    font-size: 4rem;
-    text-align: center;
+.section-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--text); text-transform: uppercase;
+    letter-spacing: 0.8px; margin-bottom: 10px;
+    opacity: 0.7;
 }
+
+.avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    font-size: 10px; font-weight: 600; 
+    color: var(--sidebar); background: var(--text);
+    flex-shrink: 0;
+}
+.friend-row {
+    background: var(--buttons);
+    border: 1px solid var(--sidebar);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.stars { color: var(--text); font-size: 13px; }
+hr.subtle { border: none; border-top: 1px solid var(--buttons); margin: 18px 0; }
+
+/* ── Streak ── */
+.streak-flame { font-size: 4.5rem; text-align: center; line-height: 1; }
 .streak-number {
-    font-size: 3rem;
-    font-weight: 700;
+    font-family: var(--font-serif);
+    font-size: 4rem;
+    font-weight: 400;
     text-align: center;
-    color: var(--brand);
+    color: var(--text);
+    line-height: 1;
+    margin: 6px 0 4px;
 }
+.streak-label { text-align: center; font-size: 14px; color: var(--text); margin-bottom: 24px; opacity: 0.7; }
+
+/* ── Page titles ── */
+.page-title {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+.page-sub { font-size: 14px; color: var(--text); margin-bottom: 28px; opacity: 0.7; }
+
+/* ── Login ── */
+.login-title {
+    font-family: var(--font-serif);
+    font-size: 40px;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 4px;
+}
+.login-sub { font-size: 14px; color: var(--text); text-align: center; margin-bottom: 32px; opacity: 0.7; }
+
+/* ── Metrics ── */
+[data-testid="metric-container"] {
+    background: var(--sidebar);
+    border: 1px solid var(--buttons);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+}
+[data-testid="stMetricValue"] { font-family: var(--font-serif) !important; color: var(--text) !important; }
+[data-testid="stMetricLabel"] { color: var(--text) !important; opacity: 0.8 !important; }
+
+/* ── Divider ── */
+hr { border-color: var(--buttons) !important; }
+
+/* ── No-result ── */
+.no-result { text-align: center; padding: 3rem 1rem; color: var(--text); opacity: 0.7; font-size: 14px; }
+
+/* ── Sidebar nav button overrides ── */
+[data-testid="stSidebar"] .stButton > button {
+    background: transparent !important;
+    color: var(--text) !important;
+    border: none !important;
+    text-align: left !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+    border-radius: var(--radius-sm) !important;
+}
+[data-testid="stSidebar"] .stButton > button:hover {
+    background: var(--buttons) !important;
+    color: var(--text) !important;
+    opacity: 1 !important;
+}
+
+/* ── Python Extraction Classes (Replacing inline styles) ── */
+.login-demo-text { text-align: center; font-size: 12px; color: var(--text); opacity: 0.6; margin-top: 32px; }
+.sidebar-brand-container { padding: 0 8px 16px; }
+.sidebar-brand-text { font-family: var(--font-serif); font-size: 20px; color: var(--text); }
+.sidebar-email-text { font-size: 13px; color: var(--text); opacity: 0.8; padding: 0 8px 4px; }
+.sidebar-invite-text { font-size: 12px; color: var(--text); opacity: 0.6; padding: 0 8px 12px; }
+
+.itinerary-total-time { font-size: 13.5px; color: var(--text); opacity: 0.9; margin-bottom: 16px; }
+.itinerary-stop-label { font-size: 11px; font-weight: 600; color: var(--text); opacity: 0.7; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+.stop-title, .history-title { font-size: 18px; }
+
+.friend-req-info { font-size: 14px; color: var(--text); padding-top: 6px; }
+.friend-row-inner { display: flex; align-items: center; gap: 12px; }
+.friend-details { display: flex; flex-direction: column; }
+.friend-name { font-size: 14px; color: var(--text); font-weight: 500; }
+.friend-email { font-size: 12px; color: var(--text); opacity: 0.7; }
+.no-groups-text { font-size: 13.5px; color: var(--text); opacity: 0.7; }
+.group-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.group-meta { font-size: 12px; color: var(--text); opacity: 0.7; margin-bottom: 14px; }
+
+.streak-warning { background: var(--sidebar); border-left: 3px solid var(--text); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 12px 16px; font-size: 13.5px; color: var(--text); line-height: 1.55; }
+.history-meta { margin-bottom: 10px; }

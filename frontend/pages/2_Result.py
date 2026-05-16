@@ -6,10 +6,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-
 from frontend import api_client as api
 
 st.set_page_config(page_title="Your pick — OnePick", page_icon="🎯", layout="centered")
+
+img_path = Path(__file__).parent / "images" / "logo.png"
+if img_path.exists():
+    st.logo(str(img_path),size = "large")
 
 css = (Path(__file__).parent.parent / "style.css").read_text()
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
@@ -25,30 +28,43 @@ if not p:
         st.switch_page("pages/1_Home.py")
     st.stop()
 
+# ── Place card ──────────────────────────────────────────────────────────────
+st.markdown('<div class="op-card">', unsafe_allow_html=True)
+
+if p.get("photo_url"):
+    st.image(p["photo_url"], use_container_width=True)
 
 st.markdown(f"""
-<div class="onepick-card">
-  <h2>{p['name']}</h2>
-  <div class="meta">{p.get('address','')}</div>
-  <div class="why">{p.get('why','')}</div>
-  <div class="meta">
-    {'⭐ ' + str(p['rating']) + '   ' if p.get('rating') else ''}
+<div class="op-card-body">
+  <div class="op-card-title">{p['name']}</div>
+  <div class="op-card-meta">{p.get('address', '')}</div>
+  <div class="op-card-why">{p.get('why', '')}</div>
+  <div class="op-card-meta">
+    {'⭐ ' + str(p['rating']) + '&nbsp;&nbsp;' if p.get('rating') else ''}
     {'🕒 ' + p['hours'] if p.get('hours') else ''}
   </div>
 </div>
 """, unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-# Map widget
-m = folium.Map(location=[p["lat"], p["lon"]], zoom_start=15, control_scale=True)
-folium.Marker([p["lat"], p["lon"]], tooltip=p["name"]).add_to(m)
-st_folium(m, height=320, use_container_width=True)
+# ── Map ─────────────────────────────────────────────────────────────────────
+m = folium.Map(location=[p["lat"], p["lon"]], zoom_start=15, control_scale=True,
+               tiles="CartoDB positron")
+folium.Marker(
+    [p["lat"], p["lon"]],
+    tooltip=p["name"],
+    icon=folium.Icon(color="darkblue", icon="map-marker", prefix="fa"), 
+).add_to(m)
+st_folium(m, height=300, use_container_width=True)
 
-
+# ── Actions ─────────────────────────────────────────────────────────────────
+st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
 c1, c2, c3 = st.columns(3)
+
 with c1:
     if st.button("🔁 Reroll", use_container_width=True):
         try:
-            with st.spinner("Re-rolling..."):
+            with st.spinner("Finding another..."):
                 st.session_state["last_pick"] = api.reroll(p["pick_id"])
             st.rerun()
         except Exception as e:
@@ -63,16 +79,16 @@ with c2:
             st.error(f"Failed: {e}")
 
 with c3:
-    thumb_col_a, thumb_col_b = st.columns(2)
-    with thumb_col_a:
+    t1, t2 = st.columns(2)
+    with t1:
         if st.button("👍", use_container_width=True):
             api.thumbs(p["pick_id"], 1)
-            st.toast("Thanks for the signal!")
-    with thumb_col_b:
+            st.toast("Thanks!")
+    with t2:
         if st.button("👎", use_container_width=True):
             api.thumbs(p["pick_id"], -1)
             st.toast("Noted.")
 
-st.divider()
+st.markdown("<br>", unsafe_allow_html=True)
 if st.button("← Pick something else"):
     st.switch_page("pages/1_Home.py")
