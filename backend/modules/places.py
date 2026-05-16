@@ -167,9 +167,8 @@ def _weight(place: dict, seen_place_ids: set) -> float:
     quality = 3.5 + min(1.5, place.get("vote_count", 0) * 0.1)   # 3.5 → 5.0 cap
     novelty = 0.0 if place["place_id"] in seen_place_ids else 1.5
     jitter = random.uniform(0, 0.5)
-    open_now = 1.0 if _is_open_now(place.get("hours", "")) else 0.0
-    score = (quality + novelty + jitter) * (open_now * 0.5 + 1.0)  # 1.5x boost if open, but don't penalize closed places too much
-    return score
+    open_bonus = 0.8 if _is_open_now(place.get("hours", "")) else 0.0
+    return quality + novelty + jitter + open_bonus
 
 _reason_cache: dict[tuple, str] = {}
 

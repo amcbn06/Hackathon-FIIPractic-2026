@@ -28,7 +28,7 @@ try:
         st.markdown(f"""
         <div class="onepick-card">
           <h3>{check} {p['place_name']}</h3>
-          <div class="meta">{p['category']} · {p['city']} · {p['created_at'][:10]}</div>
+          <div class="meta">{p['category']} · {p['city']} · {(p.get('created_at') or '')[:10]}</div>
           <div class="why">{p['why']}</div>
         </div>
         """, unsafe_allow_html=True)

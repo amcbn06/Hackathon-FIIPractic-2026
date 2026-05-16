@@ -77,7 +77,7 @@ class Pick(Base):
     category = Column(String)
     city = Column(String)
     why = Column(String)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=datetime.utcnow)
     visited_at = Column(DateTime, nullable=True)
     reroll_count = Column(Integer, default=0)
     thumbs = Column(Integer, default=0)

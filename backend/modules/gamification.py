@@ -33,7 +33,7 @@ class HistoryItem(BaseModel):
     city: str
     why: str
     visited: bool
-    created_at: str
+    created_at: Optional[str] = None
 
 
 class HistoryOut(BaseModel):
@@ -63,11 +63,12 @@ def get_history(user: User = Depends(get_current_user),
     return HistoryOut(picks=[
         HistoryItem(
             pick_id=p.id,
-            place_name=p.place_name,
-            category=p.category,
-            city=p.city,
+            place_name=p.place_name or "",
+            category=p.category or "",
+            city=p.city or "",
             why=p.why or "",
             visited=p.visited_at is not None,
-            created_at=p.created_at.isoformat(),
+            created_at=p.created_at.isoformat() if p.created_at else None,
         ) for p in picks
+        if p.place_name  # skip corrupted rows with no name
     ])
