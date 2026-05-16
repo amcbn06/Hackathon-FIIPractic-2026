@@ -225,32 +225,46 @@ def _generate_reason(place: dict, category: str, user_id: int, recent_names: lis
 
 
 def _pick_for_user(db: Session, user_id: int, category: str, city: str) -> dict:
-    rows = _eligible_places(db, category, city)
-    if not rows:
+    """Alege o locație din baza de date pentru un utilizator singur."""
+    
+    # 1. Căutăm doar locațiile din DB care se potrivesc
+    places = db.query(Place).filter(
+        Place.category == category,
+        Place.city == city,
+        Place.status.in_(("admin", "approved"))
+    ).all()
+
+    # 2. Fallback la oraș
+    if not places:
+        places = db.query(Place).filter(
+            Place.category == category,
+            Place.status.in_(("admin", "approved"))
+        ).all()
+
+    # 3. Eroare curată dacă tabelul este gol pe această categorie
+    if not places:
         raise HTTPException(
             status_code=404,
-            detail=f"No approved places for {category} in {city}. "
-                   f"Suggest one with POST /places/suggest.")
+            detail=f"Nu există nicio locație în baza de date pentru {category} în {city}."
+        )
 
-    candidates = [_place_to_dict(p) for p in rows]
-    seen = {
-        p.place_id for p in db.query(Pick)
-        .filter(Pick.user_id == user_id,
-                Pick.created_at >= datetime.now(timezone.utc) - timedelta(days=7)
-                ).all()
+    # 4. Alegem aleatoriu DOAR din ce ai tu în JSON/Baza de date
+    chosen_place = random.choice(places)
+
+    # 5. Formăm dicționarul exact cum îl așteaptă restul aplicației
+    return {
+        "place_id": str(chosen_place.id),
+        "name": chosen_place.name,
+        "address": chosen_place.address or "",
+        "lat": chosen_place.lat,
+        "lon": chosen_place.lon,
+        "category": chosen_place.category,
+        "city": chosen_place.city,
+        "photo_url": chosen_place.photo_url,
+        "hours": chosen_place.hours,
+        "why": chosen_place.description or f"O alegere excelentă pentru {category}!",
+        "rating": getattr(chosen_place, "vote_count", 0.0)
     }
-
-    scored = sorted(candidates, key=lambda p: _weight(p, seen), reverse=True)
-    chosen = scored[0]
-
-    recent_names = [p.place_name for p in db.query(Pick)
-                    .filter(Pick.user_id == user_id)
-                    .order_by(Pick.created_at.desc()).limit(3).all()
-                    if p.place_name]
-
-    chosen["why"] = _generate_reason(chosen, category, user_id, recent_names)
-    return chosen
-
 
 def _pick_response(p: Pick, chosen: dict) -> PickResponse:
     return PickResponse(

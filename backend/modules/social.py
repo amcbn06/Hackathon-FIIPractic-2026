@@ -20,8 +20,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user
-from backend.db import User, Friendship, Group, GroupMember, get_db
+from backend.db import User, Friendship, Group, GroupMember, get_db, Place, Pick
 from backend.modules import places as places_module
+import random
 
 router = APIRouter(tags=["social"])
 
@@ -199,21 +200,79 @@ def list_groups(user: User = Depends(get_current_user),
         members_detail = [GroupMemberDetail(user_id=u.id, display_name=u.display_name or "Anonim", invite_code=u.invite_code) for u in users]
         out.append(GroupOut(group_id=g.id, name=g.name, member_ids=member_ids, members=members_detail))
     return out
+import random  # asigură-te că ai 'import random' sus în social.py dacă nu e deja
 
 @router.post("/groups/{group_id}/pick")
-def group_pick(group_id: int, body: GroupPickRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def group_pick(group_id: int, 
+               body: GroupPickRequest, 
+               user: User = Depends(get_current_user), 
+               db: Session = Depends(get_db)):
+    # 1. Verificăm dacă user-ul chiar face parte din acest grup
     membership = db.query(GroupMember).filter(GroupMember.group_id == group_id, GroupMember.user_id == user.id).first()
     if not membership:
         raise HTTPException(status_code=403, detail="Not a member of this group")
 
+    # 2. Hack-ul de sincro (funcțional): dacă s-a ales deja azi ceva pentru grup, dăm aceeași variantă
     today_start = datetime.combine(date.today(), datetime.min.time())
     existing_pick = db.query(Pick).filter(Pick.group_id == group_id, Pick.created_at >= today_start).order_by(Pick.created_at.desc()).first()
 
     if existing_pick:
+        # Căutăm locația originală din DB ca să trimitem coordonatele și adresa ei reale
+        locatie_salvata = db.query(Place).filter(Place.id == existing_pick.place_id).first()
         return places_module.PickResponse(
-            pick_id=existing_pick.id, place_id=existing_pick.place_id, name=existing_pick.place_name, why=existing_pick.why,
-            lat=47.1585, lon=27.6014, address="Conform GPS", rating=4.5
+            pick_id=existing_pick.id,
+            place_id=str(existing_pick.place_id),
+            name=existing_pick.place_name,
+            why=existing_pick.why or "Alegerea grupului de astăzi!",
+            lat=locatie_salvata.lat if locatie_salvata else 47.1585,
+            lon=locatie_salvata.lon if locatie_salvata else 27.6014,
+            address=locatie_salvata.address if locatie_salvata else "Iași",
+            rating=4.5
         )
 
-    req = places_module.PickRequest(category=body.category, city=body.city, group_id=group_id)
-    return places_module.pick(req, user=user, db=db)
+    # 3. LOGICA NOUĂ: Căutăm STRICT în tabelul local 'Place' (doar ce ați adăugat voi în DB)
+    places = db.query(Place).filter(
+        Place.category == body.category,
+        Place.city == body.city,
+        Place.status.in_(("admin", "approved")) # ia doar locațiile valide
+    ).all()
+
+    # Fallback dacă nu găsește fix în acel oraș, caută doar după categorie
+    if not places:
+        places = db.query(Place).filter(Place.category == body.category, Place.status.in_(("admin", "approved"))).all()
+
+    # Dacă tabelul vostru nu are nimic pe această categorie, dăm eroare curată
+    if not places:
+        raise HTTPException(status_code=404, detail=f"Nu există nicio locație în baza de date pentru categoria '{body.category}' în {body.city}.")
+
+    # 4. Extragem aleatoriu o locație introdusă de voi
+    chosen_place = random.choice(places)
+    descriere_locatie = chosen_place.description or f"O locație excelentă de tip {body.category} din {body.city}."
+
+    # 5. Salvăm alegerea în tabelul de istorice 'Pick' (fără să adăugăm nimic în tabelul de locații!)
+    p = Pick(
+        user_id=user.id,
+        group_id=group_id,
+        place_id=str(chosen_place.id),
+        place_name=chosen_place.name,
+        category=body.category,
+        city=body.city,
+        why=descriere_locatie,
+    )
+    db.add(p)
+    db.commit()
+    db.refresh(p)
+
+    # 6. Returnăm răspunsul perfect formatat pentru Frontend
+    return places_module.PickResponse(
+        pick_id=p.id,
+        place_id=str(chosen_place.id),
+        name=chosen_place.name,
+        address=chosen_place.address or "",
+        lat=chosen_place.lat,
+        lon=chosen_place.lon,
+        why=descriere_locatie,
+        rating=getattr(chosen_place, "vote_count", 0.0), # folosim voturile pe post de rating local
+        photo_url=chosen_place.photo_url,
+        hours=chosen_place.hours
+    )
