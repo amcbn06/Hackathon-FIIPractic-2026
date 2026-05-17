@@ -653,3 +653,20 @@ def mark_itinerary_stop(stop_id: int, user: User = Depends(get_current_user), db
             itin.completed_at = datetime.utcnow()
             db.commit()
     return {"detail": "Stop marked visited"}
+
+@router.get("/cities")
+def get_available_cities(db: Session = Depends(get_db)):
+    """Extrage lista de orașe unice direct din baza de date."""
+    
+    # NOTĂ: Aici extrag orașele din tabelul Pick. 
+    # Dacă ai un tabel dedicat (ex: City) sau tabel de locații, poți schimba `Pick.city` cu `TabelulTau.city`
+    cities_query = db.query(Pick.city).filter(Pick.city != None).distinct().all()
+    
+    # Curățăm formatul (SQLAlchemy returnează o listă de tupluri)
+    city_list = [c[0] for c in cities_query if c[0]]
+    
+    # Punem un fallback (plasă de siguranță) în caz că baza de date e complet goală pentru Demo
+    if not city_list:
+        return ["Iași", "București", "Cluj-Napoca", "Timișoara"]
+        
+    return city_list
