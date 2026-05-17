@@ -8,13 +8,46 @@ from frontend import api_client as api
 
 st.set_page_config(page_title="Social — OnePick", page_icon="🌍", layout="centered")
 
+
 # --- Setup Logo & CSS ---
 img_path = Path(__file__).parent.parent / "images" / "logo.png"
 if img_path.exists():
     st.logo(str(img_path), size="large")
 css_path = Path(__file__).parent.parent / "style.css"
+
+
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
+
+with st.sidebar:
+
+    # 1. Your Logo
+    img_path = Path(__file__).parent / "images" / "logo.png"
+    if img_path.exists():
+        st.logo(str(img_path), size="large")
+
+    # 2. Your Custom Navigation Menu
+    # (This replaces the ugly default menu we hid with CSS)
+    st.page_link("app.py", label="Home", icon="🏠")
+    st.page_link("pages/3_Itinerary.py", label="Itinerary", icon="🗺️")
+    st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
+    st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
+    st.page_link("pages/6_History.py", label="History", icon="📜")
+
+    # Adding a little vertical space before the profile section
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # 3. User Profile & Logout
+    st.markdown(
+        '<div class="sidebar-brand-container"><span class="sidebar-brand-text">South</span></div>',
+        unsafe_allow_html=True,
+    )
+
+
+    st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
+    if st.button("Log out", use_container_width=True):
+        api.clear_token()
+        st.rerun()
 
 if not api.is_logged_in():
     st.warning("Please log in from the main page.")

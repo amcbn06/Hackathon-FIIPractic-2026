@@ -30,10 +30,9 @@ html, body, [class*="css"] {
 header {
     background: transparent !important;
 }
-
 /* ── Sidebar ── */
-[data-testid="stSidebar"] {
 
+[data-testid="stSidebar"] {
     background-color: var(--sidebar) !important;
     border-right: 1px solid var(--buttons) !important;
 }

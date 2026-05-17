@@ -70,7 +70,6 @@ def _login_screen():
         unsafe_allow_html=True,
     )
 
-
 def _home_screen():
     user = api.me()
 
@@ -96,8 +95,19 @@ def _home_screen():
             '<div class="sidebar-brand-container"><span class="sidebar-brand-text">South</span></div>',
             unsafe_allow_html=True,
         )
-        st.markdown(f'<div class="sidebar-email-text">{user["email"]}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="sidebar-invite-text">Invite: <code>{user["invite_code"]}</code></div>', unsafe_allow_html=True)
+        st.page_link("app.py", label="Home", icon="🏠")
+        st.page_link("pages/3_Itinerary.py", label="Itinerary", icon="🗺️")
+        st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
+        st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
+        st.page_link("pages/6_History.py", label="History", icon="📜")
+        # Adding a little vertical space before the profile section
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+        # 3. User Profile & Logout
+        st.markdown(
+            '<div class="sidebar-brand-container"><span class="sidebar-brand-text">South</span></div>',
+            unsafe_allow_html=True,
+        )
         st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
         if st.button("Log out", use_container_width=True):
             api.clear_token()
