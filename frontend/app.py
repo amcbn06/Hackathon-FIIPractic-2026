@@ -100,7 +100,7 @@ def _home_screen():
         st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
         st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
         st.page_link("pages/6_History.py", label="History", icon="📜")
-        st.page_link("pages/7_SecretSpots.py", label="Secret Spots", icon="✨")
+        st.page_link("pages/7_SecretSpots.py", label="Recomandations", icon="✨")
         # Adding a little vertical space before the profile section
         st.markdown("<br><br>", unsafe_allow_html=True)
 

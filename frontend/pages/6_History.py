@@ -30,7 +30,7 @@ if not api.is_logged_in():
 # ==============================================================================
 
 # 4. DESIGN TITLU (Să se pupe cu fișierul style.css)
-st.markdown('<div class="page-title">History ✅</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-title">History 📜</div>', unsafe_allow_html=True)
 st.markdown('<div class="page-sub">Manage your To-Do list and see where you\'ve been.</div>', unsafe_allow_html=True)
 st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
 

@@ -6,7 +6,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from frontend import api_client as api
 
-st.set_page_config(page_title="Secret Spots — South", page_icon="✨", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Recomandations — South", page_icon="✨", layout="centered", initial_sidebar_state="expanded")
 
 # Script pentru forțarea deschiderii meniului
 components.html(
@@ -33,7 +33,7 @@ with st.sidebar:
     st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
     st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
     st.page_link("pages/6_History.py", label="History", icon="📜")
-    st.page_link("pages/7_SecretSpots.py", label="Secret Spots", icon="✨") # Pagina Nouă
+    st.page_link("pages/7_SecretSpots.py", label="Recomandations", icon="✨") # Pagina Nouă
 
     st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown('<div class="sidebar-brand-container"><span class="sidebar-brand-text">South</span></div>', unsafe_allow_html=True)
