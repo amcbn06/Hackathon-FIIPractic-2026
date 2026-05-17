@@ -382,7 +382,6 @@ def validate_and_add_custom_location(name: str, city: str, rating: int, descript
     """Validează locul cu AI. Dacă description e gol, AI-ul generează textul."""
     if MOCK_MODE: return {"is_valid": True, "message": "Validat de Mock AI"}
     
-    # Trimitem corpul cererii către backend formatat corect
     val_payload = {
         "name": name, 
         "city": city, 
@@ -398,7 +397,6 @@ def validate_and_add_custom_location(name: str, city: str, rating: int, descript
     ai_desc = f"{val_data.get('description', '')} | Adresă: {val_data.get('address', '')}"
     ai_interval = val_data.get('interval', 'N/A')
     
-    # Salvăm în baza de date locală
     save_payload = {
         "name": name, 
         "description": ai_desc, 
@@ -416,13 +414,15 @@ def get_my_custom_locations() -> list:
     _raise(r)
     return r.json()
 
-def get_cities() -> list:
+def get_cities() -> List[str]:
+    """Aduce orașele disponibile din DB. Returnează fallback dacă backend-ul nu răspunde."""
     if MOCK_MODE: return ["Iași", "București", "Cluj-Napoca"]
     try:
-        # Asigură-te că ruta se potrivește cu prefixul tău. Dacă places.py are prefix="/places", pune /places/cities
         r = requests.get(f"{BACKEND_URL}/places/cities", headers=_headers(), timeout=5)
         if r.status_code == 200:
-            return r.json()
-    except:
+            res = r.json()
+            if isinstance(res, list) and len(res) > 0:
+                return res
+    except Exception:
         pass
-    return ["Iași"]  # Fallback vizual în caz de eroare de conexiune
+    return ["Iași"]  # Fallback obligatoriu ca să NU mai crăpe aplicația pe Streamlit Cloud
