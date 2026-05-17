@@ -32,7 +32,7 @@ with st.sidebar:
     st.page_link("pages/3_Itinerary.py", label="Itinerary", icon="🗺️")
     st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
     st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
-    st.page_link("pages/6_History.py", label="Tracker", icon="✅")
+    st.page_link("pages/6_History.py", label="History", icon="📜")
     st.page_link("pages/7_SecretSpots.py", label="Secret Spots", icon="✨") # Pagina Nouă
 
     st.markdown("<br><br>", unsafe_allow_html=True)

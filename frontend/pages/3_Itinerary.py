@@ -114,10 +114,10 @@ if it:
         st.markdown("<br>", unsafe_allow_html=True) # Un mic spațiu sub hartă
         
         # Butonul de Save este acum ÎN INTERIORUL blocului `if it:`
-        if st.button("💾 Save to Tracker", type="primary", use_container_width=True):
+        if st.button("💾 Save to History", type="primary", use_container_width=True):
             try:
                 # Aici folosim `it["stops"]` care e variabila corectă
                 api.save_itinerary(city, it["stops"])
-                st.success("Itinerary saved! Check your Tracker page.")
+                st.success("Itinerary saved! Check your History page.")
             except Exception as e:
                 st.error(f"Eroare: {e}")

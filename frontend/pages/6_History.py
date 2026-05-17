@@ -6,7 +6,7 @@ import streamlit as st
 from frontend import api_client as api
 
 # 1. Configurația paginii exact ca la celelalte
-st.set_page_config(page_title="Tracker — South", page_icon="✅", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="History — South", page_icon="📜", layout="centered", initial_sidebar_state="expanded")
 
 # 2. Încărcare LOGO și CSS (Magia vizuală)
 img_path = Path(__file__).parent.parent / "images" / "logo.png"
@@ -30,7 +30,7 @@ if not api.is_logged_in():
 # ==============================================================================
 
 # 4. DESIGN TITLU (Să se pupe cu fișierul style.css)
-st.markdown('<div class="page-title">Activity Tracker ✅</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-title">History ✅</div>', unsafe_allow_html=True)
 st.markdown('<div class="page-sub">Manage your To-Do list and see where you\'ve been.</div>', unsafe_allow_html=True)
 st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
 
