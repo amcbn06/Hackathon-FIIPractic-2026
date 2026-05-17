@@ -33,6 +33,7 @@ with st.sidebar:
     st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
     st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
     st.page_link("pages/6_History.py", label="History", icon="📜")
+    st.page_link("pages/7_SecretSpots.py", label="Secret Spots", icon="✨")
 
     # Adding a little vertical space before the profile section
     st.markdown("<br><br>", unsafe_allow_html=True)
@@ -358,7 +359,11 @@ with tab_groups:
                         st.caption("All your friends are already in this group!")
 
                 # Butonul de generare a locației pentru tot grupul
-                cat = st.selectbox(f"Category", ["cafe", "park", "museum", "bar", "restaurant", "viewpoint"], key=f"gcat_{g['group_id']}")
+                cat = st.selectbox(
+                    f"Category", 
+                    ["cafe", "park", "museum", "bar", "restaurant", "viewpoint", "sport", "entertainment", "cultural"], 
+                    key=f"gcat_{g['group_id']}"
+                    )
                 if st.button(f"🎯 Pick for {g['name']}", key=f"gpick_{g['group_id']}", type="primary"):
                     with st.spinner("Picking for the group..."):
                         p = api.group_pick(g["group_id"], cat, "Iași")

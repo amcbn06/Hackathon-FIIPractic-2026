@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.db import init_db
 from backend import auth
-from backend.modules import places, social, gamification
+from backend.modules import places, social, gamification,custom_spots
 
 app = FastAPI(
     title="OnePick API",
@@ -45,3 +45,4 @@ app.include_router(auth.router)
 app.include_router(places.router)
 app.include_router(social.router)
 app.include_router(gamification.router)
+app.include_router(custom_spots.router)

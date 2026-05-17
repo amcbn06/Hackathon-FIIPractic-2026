@@ -27,7 +27,8 @@ with st.sidebar:
     st.page_link("pages/3_Itinerary.py", label="Itinerary", icon="🗺️")
     st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
     st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
-    st.page_link("pages/6_History.py", label="Tracker", icon="✅")
+    st.page_link("pages/6_History.py", label="History", icon="📜")
+    st.page_link("pages/7_SecretSpots.py", label="Secret Spots", icon="✨")
 
     # Adding a little vertical space before the profile section
     st.markdown("<br><br>", unsafe_allow_html=True)
@@ -50,7 +51,10 @@ if not api.is_logged_in():
 st.markdown('<div class="page-title">Build a day 🗺️</div>', unsafe_allow_html=True)
 st.markdown('<div class="page-sub">Tell us a few moods. We\'ll route them in order.</div>', unsafe_allow_html=True)
 
-CATEGORIES = ["cafe", "park", "museum", "bar", "restaurant", "viewpoint"]
+CATEGORIES = [
+    "cafe", "park", "museum", "bar", "restaurant", "viewpoint", 
+    "sport", "entertainment", "cultural"
+]
 
 city = st.text_input("City", value="Iași")
 cats = st.multiselect(

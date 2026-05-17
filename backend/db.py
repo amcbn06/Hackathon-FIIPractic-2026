@@ -166,3 +166,14 @@ def get_db():
         yield db
     finally:
         db.close()
+        
+class CustomLocation(Base):
+    __tablename__ = "custom_locations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    name = Column(String)
+    description = Column(String)
+    interval = Column(String)
+    rating = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)

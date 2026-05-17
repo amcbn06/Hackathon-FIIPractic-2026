@@ -445,3 +445,16 @@ def mark_itinerary_stop(stop_id: int) -> Dict:
     r = requests.post(f"{BACKEND_URL}/itinerary/stop/{stop_id}/visited", headers=_headers(), timeout=10)
     _raise(r)
     return r.json()
+
+def add_custom_location(name: str, description: str, interval: str, rating: int) -> dict:
+    if MOCK_MODE: return {}
+    payload = {"name": name, "description": description, "interval": interval, "rating": rating}
+    r = requests.post(f"{BACKEND_URL}/custom_locations/add", json=payload, headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def get_my_custom_locations() -> list:
+    if MOCK_MODE: return []
+    r = requests.get(f"{BACKEND_URL}/custom_locations/me", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()

@@ -32,6 +32,7 @@ st.markdown('<div class="section-label">What are you in the mood for?</div>', un
 CATEGORIES = [
     ("cafe", "☕"), ("park", "🌳"), ("museum", "🏛️"),
     ("bar", "🍻"), ("restaurant", "🍽️"), ("viewpoint", "🌆"),
+    ("sport", "⚽"), ("entertainment", "🎭"), ("cultural", "🎨"),
 ]
 
 cols = st.columns(3)
