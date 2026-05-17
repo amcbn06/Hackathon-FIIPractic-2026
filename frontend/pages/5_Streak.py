@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 import streamlit as st
 from frontend import api_client as api
 
-st.set_page_config(page_title="Streak — OnePick", page_icon="🔥", layout="centered")
+st.set_page_config(page_title="Streak — South", page_icon="🔥", layout="centered")
 img_path = Path(__file__).parent.parent / "images" / "logo.png"
 if img_path.exists():
     st.logo(str(img_path),size = "large")

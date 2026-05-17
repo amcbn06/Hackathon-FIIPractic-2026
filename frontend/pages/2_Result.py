@@ -8,7 +8,7 @@ import folium
 from streamlit_folium import st_folium
 from frontend import api_client as api
 
-st.set_page_config(page_title="Your pick — OnePick", page_icon="🎯", layout="centered")
+st.set_page_config(page_title="Your pick — South", page_icon="", layout="centered")
 img_path = Path(__file__).parent.parent / "images" / "logo.png"
 if img_path.exists():
     st.logo(str(img_path),size = "large")

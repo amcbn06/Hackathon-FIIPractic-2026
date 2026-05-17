@@ -6,7 +6,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from frontend import api_client as api
 
-st.set_page_config(page_title="Secret Spots — OnePick", page_icon="✨", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Secret Spots — South", page_icon="✨", layout="centered", initial_sidebar_state="expanded")
 
 # Script pentru forțarea deschiderii meniului
 components.html(
