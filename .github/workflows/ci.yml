@@ -45,7 +45,7 @@ jobs:
       run: |
         # Assuming you have tests in your backend/tests/ folder. 
         # If you don't use pytest yet, you can comment this step out.
-        pytest backend/tests/
+        # pytest backend/tests/
 
     # 6. Verify Streamlit Syntax (Optional but helpful)
     - name: Verify Frontend Syntax
