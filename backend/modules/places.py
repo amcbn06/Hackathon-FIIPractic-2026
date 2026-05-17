@@ -39,7 +39,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user, get_admin_user
-from backend.db import User, Pick, Streak, Place, PlaceVote, get_db
+from backend.db import User, Pick, Streak, Place, PlaceVote, get_db,Group, GroupInvite, GroupCheckin,GroupMember,ItineraryStop,Itinerary
 
 router = APIRouter(tags=["places"])
 
@@ -114,6 +114,10 @@ class SuggestPlaceRequest(BaseModel):
     hours: Optional[str] = None
     description: Optional[str] = None
     photo_url: Optional[str] = None
+    
+class SaveItineraryRequest(BaseModel):
+    city: str
+    stops: list
 
 
 # ----- Helpers --------------------------------------------------------------
@@ -328,12 +332,33 @@ def reroll(pick_id: int, user: User = Depends(get_current_user),
 
 @router.post("/pick/{pick_id}/visited")
 def mark_visited(pick_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    p = db.query(Pick).filter(Pick.id == pick_id, Pick.user_id == user.id).first()
+    p = db.query(Pick).filter(Pick.id == pick_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Pick not found")
-    if p.visited_at is None:
-        p.visited_at = datetime.utcnow()
-        db.commit()
+
+    if p.group_id:
+        # LOGICA PENTRU GRUP
+        group = db.query(Group).filter(Group.id == p.group_id).first()
+        total_members = len(group.members) if group else 1
+        
+        # Verificăm dacă userul a dat deja check-in
+        existing_checkin = db.query(GroupCheckin).filter_by(pick_id=p.id, user_id=user.id).first()
+        if not existing_checkin:
+            db.add(GroupCheckin(pick_id=p.id, user_id=user.id))
+            db.commit()
+            
+        # Verificăm câți au dat check-in în total
+        checkin_count = db.query(GroupCheckin).filter_by(pick_id=p.id).count()
+        
+        # Dacă toți au dat check-in, abia acum marcăm locația ca fiind vizitată oficial!
+        if checkin_count >= total_members and p.visited_at is None:
+            p.visited_at = datetime.utcnow()
+            db.commit()
+    else:
+        # LOGICA PENTRU SOLO
+        if p.visited_at is None:
+            p.visited_at = datetime.utcnow()
+            db.commit()
 
     streak = gamification.increment_streak(db, user.id)
     return {"streak_current": streak.current, "streak_longest": streak.longest}
@@ -522,3 +547,109 @@ def admin_delete(place_id: int,
     db.delete(p)
     db.commit()
     return {"deleted": place_id}
+
+@router.get("/me/advanced_history")
+def advanced_history(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Returnează datele separate perfect pentru To Do și History, inclusiv Itinerariile!"""
+    
+    # 1. SOLO PICKS
+    solo_picks = db.query(Pick).filter(Pick.user_id == user.id, Pick.group_id == None).order_by(Pick.created_at.desc()).all()
+    todo_solo, hist_solo = [], []
+    for p in solo_picks:
+        item = {"pick_id": p.id, "place_name": p.place_name, "category": p.category, "city": p.city}
+        if p.visited_at: hist_solo.append(item)
+        else: todo_solo.append(item)
+
+    # 2. GROUP PICKS
+    user_groups = db.query(GroupMember).filter(GroupMember.user_id == user.id).all()
+    group_ids = [g.group_id for g in user_groups]
+    group_picks = db.query(Pick).filter(Pick.group_id.in_(group_ids)).order_by(Pick.created_at.desc()).all() if group_ids else []
+    todo_group, hist_group = [], []
+
+    for p in group_picks:
+        group = db.query(Group).filter(Group.id == p.group_id).first()
+        total_members = len(group.members) if group else 1
+        checkins = db.query(GroupCheckin).filter(GroupCheckin.pick_id == p.id).all()
+        checked_in_ids = [c.user_id for c in checkins]
+        
+        item = {
+            "pick_id": p.id, 
+            "place_name": p.place_name, 
+            "category": p.category,
+            "group_name": group.name if group else "Unknown Group",
+            "total_members": total_members,
+            "checked_in_count": len(checked_in_ids),
+            "i_checked_in": user.id in checked_in_ids
+        }
+        if p.visited_at: hist_group.append(item)
+        else: todo_group.append(item)
+
+    # 3. ITINERARIES (Traseele noi!)
+    user_itineraries = db.query(Itinerary).filter(Itinerary.user_id == user.id).all()
+    todo_itin, hist_itin = [], []
+
+    for itin in user_itineraries:
+        stops = db.query(ItineraryStop).filter(ItineraryStop.itinerary_id == itin.id).all()
+        total_stops = len(stops)
+        visited_stops = sum(1 for s in stops if s.visited_at)
+        stops_detail = [{"stop_id": s.id, "place_name": s.place_name, "category": s.category, "visited": bool(s.visited_at)} for s in stops]
+
+        itin_data = {
+            "itinerary_id": itin.id,
+            "city": itin.city,
+            "created_at": itin.created_at.strftime("%d %b %Y") if itin.created_at else "Recent",
+            "total_stops": total_stops,
+            "visited_stops": visited_stops,
+            "stops": stops_detail
+        }
+
+        # Dacă e completat, merge la History. Dacă nu, stă la To-Do!
+        if itin.completed_at or (total_stops > 0 and visited_stops == total_stops):
+            hist_itin.append(itin_data)
+        else:
+            todo_itin.append(itin_data)
+
+    # 4. TRIMITEREA CĂTRE FRONTEND
+    return {
+        "todo": {"solo": todo_solo, "group": todo_group, "itineraries": todo_itin},
+        "history": {"solo": hist_solo, "group": hist_group, "itineraries": hist_itin}
+    }
+    
+@router.post("/itinerary/save")
+def save_itinerary(body: SaveItineraryRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Salvează un traseu nou generat direct în Tracker-ul tău."""
+    new_itin = Itinerary(user_id=user.id, city=body.city)
+    db.add(new_itin)
+    db.commit()
+    db.refresh(new_itin)
+
+    for stop in body.stops:
+        new_stop = ItineraryStop(
+            itinerary_id=new_itin.id,
+            place_id=stop.get("place_id", "unknown"),
+            place_name=stop.get("name", "Unknown Place"),
+            category=stop.get("category", "place")
+        )
+        db.add(new_stop)
+    db.commit()
+    return {"detail": "Itinerary saved"}
+
+@router.post("/itinerary/stop/{stop_id}/visited")
+def mark_itinerary_stop(stop_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Bifează o locație din traseu. Dacă e ultima, traseul devine Completat."""
+    stop = db.query(ItineraryStop).filter(ItineraryStop.id == stop_id).first()
+    if stop and not stop.visited_at:
+        stop.visited_at = datetime.utcnow()
+        db.commit()
+
+        # Verificăm dacă mai sunt locații nebifate în traseul ăsta
+        unvisited = db.query(ItineraryStop).filter(
+            ItineraryStop.itinerary_id == stop.itinerary_id,
+            ItineraryStop.visited_at == None
+        ).count()
+
+        if unvisited == 0:
+            itin = db.query(Itinerary).filter(Itinerary.id == stop.itinerary_id).first()
+            itin.completed_at = datetime.utcnow()
+            db.commit()
+    return {"detail": "Stop marked visited"}

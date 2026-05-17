@@ -10,26 +10,24 @@ from frontend import api_client as api
 
 st.set_page_config(page_title="Itinerary — OnePick", page_icon="🗺️", layout="centered")
 
-
 img_path = Path(__file__).parent.parent / "images" / "logo.png"
 if img_path.exists():
     st.logo(str(img_path),size = "large")
 css = (Path(__file__).parent.parent / "style.css").read_text()
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-with st.sidebar:
 
+with st.sidebar:
     # 1. Your Logo
     img_path = Path(__file__).parent / "images" / "logo.png"
     if img_path.exists():
         st.logo(str(img_path), size="large")
 
     # 2. Your Custom Navigation Menu
-    # (This replaces the ugly default menu we hid with CSS)
     st.page_link("app.py", label="Home", icon="🏠")
     st.page_link("pages/3_Itinerary.py", label="Itinerary", icon="🗺️")
     st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
     st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
-    st.page_link("pages/6_History.py", label="History", icon="📜")
+    st.page_link("pages/6_History.py", label="Tracker", icon="✅")
 
     # Adding a little vertical space before the profile section
     st.markdown("<br><br>", unsafe_allow_html=True)
@@ -70,7 +68,11 @@ if st.button("Build my day", use_container_width=True, type="primary"):
         except Exception as e:
             st.error(f"Couldn't build itinerary: {e}")
 
+# ==========================================
+# AFIȘAREA ȘI SALVAREA TRASEULUI
+# ==========================================
 it = st.session_state.get("itinerary")
+
 if it:
     st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
     st.markdown(
@@ -104,3 +106,14 @@ if it:
         coords = [[s["lat"], s["lon"]] for s in it["stops"]]
         folium.PolyLine(coords, color="#F8F9FA", weight=2.5, opacity=0.8, dash_array="6").add_to(m)
         st_folium(m, height=380, use_container_width=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True) # Un mic spațiu sub hartă
+        
+        # Butonul de Save este acum ÎN INTERIORUL blocului `if it:`
+        if st.button("💾 Save to Tracker", type="primary", use_container_width=True):
+            try:
+                # Aici folosim `it["stops"]` care e variabila corectă
+                api.save_itinerary(city, it["stops"])
+                st.success("Itinerary saved! Check your Tracker page.")
+            except Exception as e:
+                st.error(f"Eroare: {e}")

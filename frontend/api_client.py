@@ -419,3 +419,29 @@ def kick_group_member(group_id: int, user_id: int) -> Dict:
     r = requests.delete(f"{BACKEND_URL}/groups/{group_id}/members/{user_id}", headers=_headers(), timeout=10)
     _raise(r)
     return r.json()
+
+def advanced_history() -> Dict:
+    """Aduce noul istoric structurat."""
+    if MOCK_MODE: return {"todo": {"solo": [], "group": []}, "history": {"solo": [], "group": []}}
+    r = requests.get(f"{BACKEND_URL}/me/advanced_history", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def advanced_history() -> Dict:
+    """Aduce noul istoric structurat pentru Tracker."""
+    if MOCK_MODE: return {"todo": {"solo": [], "group": []}, "history": {"solo": [], "group": []}}
+    r = requests.get(f"{BACKEND_URL}/me/advanced_history", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def save_itinerary(city: str, stops: List[Dict]) -> Dict:
+    if MOCK_MODE: return {}
+    r = requests.post(f"{BACKEND_URL}/itinerary/save", json={"city": city, "stops": stops}, headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def mark_itinerary_stop(stop_id: int) -> Dict:
+    if MOCK_MODE: return {}
+    r = requests.post(f"{BACKEND_URL}/itinerary/stop/{stop_id}/visited", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()

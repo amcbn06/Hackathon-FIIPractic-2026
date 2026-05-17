@@ -121,6 +121,13 @@ class GroupInvite(Base):
     status = Column(String, default="pending") 
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class GroupCheckin(Base):
+    __tablename__ = "group_checkins"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    pick_id = Column(Integer, ForeignKey("picks.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class Streak(Base):
     __tablename__ = "streaks"
@@ -130,6 +137,23 @@ class Streak(Base):
     longest = Column(Integer, default=0)
     last_visit_date = Column(Date, nullable=True)
     user = relationship("User", back_populates="streak")
+    
+class Itinerary(Base):
+    __tablename__ = "itineraries"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    city = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+
+class ItineraryStop(Base):
+    __tablename__ = "itinerary_stops"
+    id = Column(Integer, primary_key=True, index=True)
+    itinerary_id = Column(Integer, ForeignKey("itineraries.id"))
+    place_id = Column(String)
+    place_name = Column(String)
+    category = Column(String)
+    visited_at = Column(DateTime, nullable=True)
 
 
 def init_db() -> None:
