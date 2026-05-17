@@ -110,6 +110,16 @@ class GroupMember(Base):
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
     __table_args__ = (UniqueConstraint("group_id", "user_id", name="uq_member"),)
     group = relationship("Group", back_populates="members")
+    
+class GroupInvite(Base):
+    __tablename__ = "group_invites"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    group_id = Column(Integer, ForeignKey("groups.id"))
+    sender_id = Column(Integer, ForeignKey("users.id"))
+    receiver_id = Column(Integer, ForeignKey("users.id"))
+    status = Column(String, default="pending") 
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class Streak(Base):

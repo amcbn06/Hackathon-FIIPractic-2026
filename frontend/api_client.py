@@ -342,3 +342,80 @@ def admin_delete_place(place_id: int) -> Dict:
                         headers=_headers(), timeout=10)
     r.raise_for_status()
     return r.json()
+def get_friend_history(friend_id: int) -> List[Dict]:
+    """Cere de la backend istoricul de locații al unui prieten specific."""
+    if MOCK_MODE:
+         return [{"place_name": "Mock Café", "category": "cafe", "city": "Iași", "created_at": "Recent"}]
+    r = requests.get(f"{BACKEND_URL}/friends/{friend_id}/history",
+                     headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def remove_friend(friend_id: int) -> Dict:
+    """Trimite cerere de ștergere a prietenului."""
+    if MOCK_MODE:
+        return {"detail": "Friend removed successfully"}
+    r = requests.delete(f"{BACKEND_URL}/friends/{friend_id}",
+                        headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def block_friend(friend_id: int) -> Dict:
+    """Trimite cerere de blocare a utilizatorului."""
+    if MOCK_MODE:
+         return {"detail": "User blocked successfully"}
+    r = requests.post(f"{BACKEND_URL}/friends/{friend_id}/block",
+                      headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+def blocked_users() -> List[Dict]:
+    """Aduce lista de utilizatori blocați."""
+    if MOCK_MODE:
+        return []
+    r = requests.get(f"{BACKEND_URL}/friends/blocked", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def unblock_user(friend_id: int) -> Dict:
+    """Deblochează un utilizator."""
+    if MOCK_MODE:
+        return {"detail": "User unblocked successfully"}
+    r = requests.post(f"{BACKEND_URL}/friends/{friend_id}/unblock", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+#invite group
+def invite_to_group(group_id: int, user_id: int) -> Dict:
+    if MOCK_MODE: return {}
+    r = requests.post(f"{BACKEND_URL}/groups/{group_id}/invite", params={"user_id": user_id}, headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def pending_group_invites() -> List[Dict]:
+    if MOCK_MODE: return []
+    r = requests.get(f"{BACKEND_URL}/groups/invites/pending", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def accept_group_invite(invite_id: int) -> Dict:
+    if MOCK_MODE: return {}
+    r = requests.post(f"{BACKEND_URL}/groups/invites/{invite_id}/accept", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def decline_group_invite(invite_id: int) -> Dict:
+    if MOCK_MODE: return {}
+    r = requests.post(f"{BACKEND_URL}/groups/invites/{invite_id}/decline", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+def delete_group(group_id: int) -> Dict:
+    if MOCK_MODE: return {}
+    r = requests.delete(f"{BACKEND_URL}/groups/{group_id}", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
+
+def kick_group_member(group_id: int, user_id: int) -> Dict:
+    """Trimite cererea de kick către backend."""
+    if MOCK_MODE: return {}
+    r = requests.delete(f"{BACKEND_URL}/groups/{group_id}/members/{user_id}", headers=_headers(), timeout=10)
+    _raise(r)
+    return r.json()
