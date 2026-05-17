@@ -1,12 +1,13 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+import time
 
 import streamlit as st
 import streamlit.components.v1 as components
 from frontend import api_client as api
 
-st.set_page_config(page_title="Recomandations — South", page_icon="✨", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Secret Spots — OnePick", page_icon="✨", layout="centered", initial_sidebar_state="expanded")
 
 # Script pentru forțarea deschiderii meniului
 components.html(
@@ -24,7 +25,7 @@ css_path = Path(__file__).parent.parent / "style.css"
 if css_path.exists():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
-# Meniul Customizat (Ai grijă să adaugi pagina asta și în meniurile din celelalte pagini, dacă vrei!)
+# Meniul Customizat
 with st.sidebar:
     if img_path.exists():
         st.logo(str(img_path), size="large")
@@ -33,7 +34,7 @@ with st.sidebar:
     st.page_link("pages/4_Friends.py", label="Friends", icon="👥")
     st.page_link("pages/5_Streak.py", label="Streak", icon="🔥")
     st.page_link("pages/6_History.py", label="History", icon="📜")
-    st.page_link("pages/7_SecretSpots.py", label="Recomandations", icon="✨") # Pagina Nouă
+    st.page_link("pages/7_SecretSpots.py", label="Recommendations", icon="✨")
 
     st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown('<div class="sidebar-brand-container"><span class="sidebar-brand-text">South</span></div>', unsafe_allow_html=True)
@@ -46,39 +47,59 @@ if not api.is_logged_in():
     st.warning("Please log in from the main page.")
     st.stop()
 
-st.markdown('<div class="page-title">My Secret Spots ✨</div>', unsafe_allow_html=True)
-st.markdown('<div class="page-sub">Your personal journal of hidden gems and unmapped discoveries.</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-title">My Recommendations ✨</div>', unsafe_allow_html=True)
+st.markdown('<div class="page-sub">Your personal journal of hidden gems. Let AI do the hard work.</div>', unsafe_allow_html=True)
 st.markdown("<hr class='subtle'>", unsafe_allow_html=True)
 
-# 1. FORMULARUL
-with st.expander("➕ Add a New Discovery", expanded=False):
+# ==========================================
+# 1. FORMULARUL MAGIC 
+# ==========================================
+with st.expander("➕ Add a New Discovery", expanded=True):
     with st.form("custom_place_form", clear_on_submit=True):
-        c_name = st.text_input("Location Name*", placeholder="e.g., Hidden Waterfall")
-        c_desc = st.text_area("Description", placeholder="What makes it special?")
+        col_city, col_name = st.columns([1, 2])
         
-        col1, col2 = st.columns(2)
-        with col1:
-            c_int = st.text_input("Time Interval", placeholder="e.g., 2 hours / 10 AM - 6 PM")
-        with col2:
-            c_rating = st.slider("Rating (Stars)", min_value=1, max_value=5, value=5)
+        with col_city:
+            available_cities = api.get_cities()
+            c_city = st.selectbox("City*", options=available_cities)
+            
+        with col_name:
+            c_name = st.text_input("Location Name*", placeholder="e.g., Cuptorul Moldovencei")
+            
+        # Câmpul opțional de descriere
+        c_desc = st.text_area(
+            "Description (Optional)", 
+            placeholder="Write your own description here, or leave it blank to let AI generate it! 🧠"
+        )
+            
+        c_rating = st.slider("Your Rating (Stars)", min_value=1, max_value=5, value=5)
         
-        submit_btn = st.form_submit_button("💾 Save to My Spots", type="primary", use_container_width=True)
+        submit_btn = st.form_submit_button("💾 Save & Verify Location", type="primary", use_container_width=True)
         
         if submit_btn:
-            if not c_name.strip():
-                st.error("Please provide at least a name!")
+            if not c_name.strip() or not c_city.strip():
+                st.error("Please provide both City and Location Name!")
             else:
-                try:
-                    api.add_custom_location(c_name, c_desc, c_int, c_rating)
-                    st.success("Place added successfully!")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Error saving place: {e}")
-
+                with st.spinner("Processing your location... 🧠"):
+                    try:
+                        # Trimitem și valoarea din c_desc către API
+                        result = api.validate_and_add_custom_location(c_name, c_city, c_rating, c_desc)
+                        
+                        if result.get("is_valid"):
+                            st.success(f"✅ {result['message']}")
+                            st.balloons()
+                            time.sleep(1.5)
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {result['message']}")
+                    except Exception as e:
+                        st.error(f"Eroare de server: {e}")
+                        
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("### My Personal Collection")
 
+# ==========================================
 # 2. AFIȘAREA LOCAȚIILOR
+# ==========================================
 try:
     my_spots = api.get_my_custom_locations()
     if not my_spots:

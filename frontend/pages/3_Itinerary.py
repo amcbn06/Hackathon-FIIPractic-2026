@@ -56,7 +56,11 @@ CATEGORIES = [
     "sport", "entertainment", "cultural"
 ]
 
-city = st.text_input("City", value="Iași")
+# Tragem orașele din DB
+available_cities = api.get_cities()
+
+# Creăm dropdown-ul
+city = st.selectbox("Where are you?", options=available_cities, key="city_selector")
 cats = st.multiselect(
     "What's your day like?",
     options=CATEGORIES,

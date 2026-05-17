@@ -76,7 +76,11 @@ def _home_screen():
     st.markdown(f'<div class="page-title">Hey, {user["display_name"]} 👋</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-sub">Pick a vibe. We pick the place.</div>', unsafe_allow_html=True)
 
-    city = st.text_input("Where are you?", value="Iași", key="city")
+    # Tragem orașele din DB
+    available_cities = api.get_cities()
+
+    # Creăm dropdown-ul
+    city = st.selectbox("Where are you?", options=available_cities, key="city_selector")
 
     st.markdown('<div class="section-label">What are you in the mood for?</div>', unsafe_allow_html=True)
 
