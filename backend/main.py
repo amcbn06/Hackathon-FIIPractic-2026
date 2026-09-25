@@ -1,49 +1,55 @@
 """
-FastAPI entry point.
+South API — one recommendation, not fifty.
 
 Run locally:
-    uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+    uvicorn backend.main:app --reload --port 8000
 
-Auto-generated docs at: http://localhost:8000/docs
+Interactive docs at http://localhost:8000/docs
 """
 
-from dotenv import load_dotenv
-load_dotenv()   # must run before importing modules that read env vars
+from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.db import init_db
-from backend import auth
-from backend.modules import places, social, gamification,custom_spots, ai_service
-
-app = FastAPI(
-    title="OnePick API",
-    description="One recommendation, not fifty.",
-    version="0.1.0",
+from backend.config import settings
+from backend.database import init_db
+from backend.routers import (
+    auth,
+    gamification,
+    itinerary,
+    places,
+    social,
+    spots,
 )
 
-# Ensure tables exist at import time so the seed script, TestClient, and
-# `uvicorn --reload` all see a ready schema without relying on startup events.
+app = FastAPI(
+    title="South API",
+    description="One recommendation, not fifty.",
+    version="1.0.0",
+)
+
+# Make sure tables exist for the seed script, tests, and `--reload`.
 init_db()
 
-# CORS — wide open for hackathon; tighten before any real deploy
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def root():
-    return {"service": "OnePick API", "status": "ok"}
+    return {"service": "South API", "status": "ok", "version": app.version}
 
 
-# Mount routers (each role owns one)
-app.include_router(auth.router)
-app.include_router(places.router)
-app.include_router(social.router)
-app.include_router(gamification.router)
-app.include_router(custom_spots.router)
-app.include_router(ai_service.router)
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+
+for r in (auth, places, social, gamification, itinerary, spots):
+    app.include_router(r.router)
