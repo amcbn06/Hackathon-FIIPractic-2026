@@ -1,14 +1,29 @@
+# Python
 local/
 venv/
 .venv/
 __pycache__/
 *.pyc
 *.pyo
+
+# Databases
 *.db
 *.sqlite
 *.sqlite3
+
+# Env
 .env
-.streamlit/secrets.toml
+.env.local
+
+# Node / frontend
+node_modules/
+web/dist/
+web/.env
+web/.env.local
+npm-debug.log*
+yarn-error.log*
+
+# Editors / OS
 .DS_Store
 .idea/
 .vscode/

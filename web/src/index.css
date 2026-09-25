@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-950 text-slate-100 font-sans antialiased;
+  background-image:
+    radial-gradient(60rem 40rem at 85% -10%, rgba(99, 102, 241, 0.14), transparent 60%),
+    radial-gradient(50rem 40rem at 5% 110%, rgba(249, 115, 22, 0.1), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Nice scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-700 rounded-full;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-white/10 bg-ink-900/70 backdrop-blur-xl shadow-card;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
+      transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 hover:bg-brand-500 text-white shadow-glow;
+  }
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/5 hover:bg-white/10 text-slate-100;
+  }
+  .btn-danger {
+    @apply btn bg-rose-600/90 hover:bg-rose-500 text-white;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-white/10 bg-ink-800/80 px-4 py-3 text-sm text-slate-100
+      placeholder:text-slate-500 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300;
+  }
+
+  .label {
+    @apply text-xs font-semibold uppercase tracking-wider text-slate-400;
+  }
+}
